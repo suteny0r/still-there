@@ -172,11 +172,13 @@ static void drawOverlay(camera_fb_t* fb, const Target& t) {
 
   // last detected face stays on screen (green) while the torso tracker carries the target
   if (t.found && t.kind == TARGET_TORSO && lastFace.found) {
-    gfxBox(&g, lastFace.x, lastFace.y, lastFace.w, lastFace.h, COLOR_GREEN);
+    // green = face detector (esp-dl 1.x), magenta = whole-body detector (ESPDet-Pico)
+    uint32_t seedColor = lastFace.kind == TARGET_PERSON ? COLOR_MAGENTA : COLOR_GREEN;
+    gfxBox(&g, lastFace.x, lastFace.y, lastFace.w, lastFace.h, seedColor);
     char s[24];
     snprintf(s, sizeof(s), "%s %lums", lastFace.kind == TARGET_PERSON ? "body" : "face",
              (unsigned long)(millis() - tracker.lastFaceMs));
-    gfxText(&g, 4, 30, COLOR_GREEN, s);              // second text row, below SCAN
+    gfxText(&g, 4, 30, seedColor, s);                // second text row, below SCAN
   }
   if (t.found) {
     uint32_t color = tracker.locked() ? COLOR_RED
