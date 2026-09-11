@@ -5,3 +5,4 @@ firmware/arduino/
 .vs/
 __pycache__/
 *.pyc
+firmware/src/idf_component.yml
