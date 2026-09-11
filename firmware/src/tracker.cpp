@@ -33,6 +33,7 @@ bool Tracker::aimPoint(int& x, int& y) const {
   if (!_last.found) return false;
   x = _last.x;
   if (_last.kind == TARGET_FACE) y = _last.y + (int)(settings.aimBelow * _last.w);
+  else if (_last.kind == TARGET_PERSON) y = _last.y - _last.h / 2 + (int)(settings.aimFrac * _last.h);
   else if (_last.kind == TARGET_TORSO && torsoAimY >= 0) y = torsoAimY;
   else y = _last.y;
   return true;
@@ -171,6 +172,8 @@ void Tracker::loadSettings() {
   settings.lockRelease = prefs.getFloat("lockrel", d.lockRelease);
   settings.aimBelow = prefs.getFloat("aimbelow", d.aimBelow);
   settings.torsoTrack = prefs.getBool("torso", d.torsoTrack);
+  settings.aimFrac = prefs.getFloat("aimfrac", d.aimFrac);
+  settings.personThr = prefs.getFloat("personthr", d.personThr);
   settings.redetectMs = prefs.getInt("redetect", d.redetectMs);
   settings.torsoMinConf = prefs.getFloat("torsoconf", d.torsoMinConf);
   settings.faceTimeoutMs = prefs.getInt("facetmo", d.faceTimeoutMs);
@@ -204,6 +207,8 @@ void Tracker::saveSettings() {
   prefs.putFloat("lockrel", settings.lockRelease);
   prefs.putFloat("aimbelow", settings.aimBelow);
   prefs.putBool("torso", settings.torsoTrack);
+  prefs.putFloat("aimfrac", settings.aimFrac);
+  prefs.putFloat("personthr", settings.personThr);
   prefs.putInt("redetect", settings.redetectMs);
   prefs.putFloat("torsoconf", settings.torsoMinConf);
   prefs.putInt("facetmo", settings.faceTimeoutMs);

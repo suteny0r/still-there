@@ -222,6 +222,46 @@ All at the top of `turret.scad`, mm:
 - The USB-C slot in the head floor assumes a right-angle cable that runs backward; a straight plug
   hits the yoke disc when tilting down.
 
+## Branch `espdet-pico`: whole-body person detection
+
+`main` is the working build: esp-dl 1.x face acquisition + torso color tracking on arduino-esp32
+2.0.17. This branch swaps the acquisition detector for Espressif's ESPDet-Pico pedestrian model
+(esp-dl 3.3.11, `espressif/pedestrian_detect` 0.3.2, 224x224 input). A body box does not need a
+frontal face, so masked, turned-away or side-on people are acquired, and the aim point is a fraction
+down the box (`aim down body`, default 0.25) instead of "below the face".
+
+Measured on the XIAO ESP32S3 Sense (2026-09-11): detector 190 to 210 ms per run including the
+resize, scores 0.5 to 0.86 on a seated person with a mask, torso tracker 6 to 15 ms between runs,
+overall 6 to 7 fps with re-detection every 300 ms, 110 KB heap / 6.7 MB PSRAM free, no resets.
+
+How it is built (no ESP-IDF CMake, no component manager):
+
+- Platform: pioarduino `stable` (Arduino 3.3.6 on the IDF 5.5 SDK), plain `framework = arduino`.
+  This is the same platform your other pioarduino projects use. esp-dl 1.x face models do not exist
+  on this core, so `HAVE_ESP_DL` is 0 and `HAVE_ESPDET` is 1.
+- `firmware/lib/espdl`: esp-dl 3.3.11 subset for ESP32-S3 (dl core, xtensa + TIE-728 assembly
+  kernels, fbs_loader, vision/detect, vision/image without JPEG/PPA/YUV/HSV) as a PlatformIO
+  library; the prebuilt `libfbs_model.a` is linked by `link_fbs.py`. Kconfig options are supplied
+  as `-D` flags in `platformio.ini`.
+- `firmware/lib/pedestrian_detect`: the component's `.cpp/.hpp` plus the model, packed with esp-dl's
+  `pack_espdl_models.py` and embedded 16-byte aligned through `model/pedestrian_detect_model.S`
+  (`.incbin`), which provides the `_binary_pedestrian_detect_espdl_start` symbol the component expects.
+- `person_detect.cpp` wraps `PedestrianDetect`; the torso color tracker, lock logic, web UI and
+  servo control are unchanged. Person mode seeds the torso tracker from the upper 35 % of the body box.
+- Camera task stack is left at the SDK default here; the frame-copy and log-sink fixes from `main`
+  still apply.
+
+Build / flash from **PowerShell or VS Code**, not Git Bash: pioarduino's tool installer refuses to
+run under MSYS (`ERROR: MSys/Mingw is not supported`) and the compiler is then not found.
+
+    pio run -e xiao_espdet -t upload --upload-port COM6
+
+Flash use is 3.0 MB of the 3.3 MB app slot. If it grows, switch `board_build.partitions` to
+`max_app_8MB.csv` (drops OTA).
+
+Revert: `git checkout main` and `pio run -e xiao_expansion -t upload --upload-port COM6`. Nothing
+on `main` is touched by this branch, and NVS settings are shared (same keys).
+
 ## Bring-up notes (2026-09-10, board on the XIAO Expansion Board, no servos)
 
 - Build/flash: `pio run -e xiao_expansion -t upload --upload-port COM6`. The expansion env moves the

@@ -1,0 +1,14 @@
+{
+  "name": "pedestrian_detect",
+  "version": "0.3.2",
+  "description": "espressif/pedestrian_detect (ESPDet-Pico PICO_S8_V1) with the model embedded in flash rodata",
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "dependencies": [{"name": "espdl"}],
+  "build": {
+    "srcDir": ".",
+    "srcFilter": ["+<pedestrian_detect.cpp>", "+<model/pedestrian_detect_model.S>"],
+    "flags": ["-Wno-format"]
+  }
+}

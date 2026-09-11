@@ -22,6 +22,8 @@ struct Settings {
   float lockRelease = 3.0f;  // lock is kept until the error exceeds deadband * lockRelease
   float aimBelow = 2.3f;     // person mode: aim this many face-widths below the face center
                              // (2.3 = chest for a boresighted laser at any range; 0 = the face)
+  float aimFrac = 0.25f;     // person (body) detector: aim this fraction down the body box (0.25 = chest)
+  float personThr = 0.5f;    // person detector score threshold
   bool torsoTrack = true;    // person mode: after a face is found, follow the torso by color
   int redetectMs = 300;      // person mode: re-run the face detector this often while tracking
                              // (12-40 ms per run, so a few frames apart is affordable)

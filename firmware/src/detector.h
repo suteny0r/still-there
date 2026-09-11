@@ -12,7 +12,17 @@
 #define HAVE_ESP_DL 0
 #endif
 
-enum TargetKind : uint8_t { TARGET_NONE = 0, TARGET_FACE = 1, TARGET_TORSO = 2, TARGET_MOTION = 3 };
+// ESPDet-Pico whole-body person detector (esp-dl 3.x, hybrid build only).
+#if defined(__has_include)
+#if __has_include("pedestrian_detect.hpp")
+#define HAVE_ESPDET 1
+#endif
+#endif
+#ifndef HAVE_ESPDET
+#define HAVE_ESPDET 0
+#endif
+
+enum TargetKind : uint8_t { TARGET_NONE = 0, TARGET_FACE = 1, TARGET_TORSO = 2, TARGET_MOTION = 3, TARGET_PERSON = 4 };
 
 struct Target {
   bool found = false;
@@ -21,6 +31,10 @@ struct Target {
   int w = 0, h = 0;   // box size, pixels
   float score = 0;
 };
+
+// person_detect.cpp
+bool personDetectBegin();
+Target personDetect(camera_fb_t* fb, float scoreThr);
 
 class Detector {
  public:

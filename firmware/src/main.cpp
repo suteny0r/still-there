@@ -14,7 +14,29 @@
 #include "esp_log.h"
 #include "esp_camera.h"
 #include "img_converters.h"
+#if defined(__has_include)
+#if __has_include("fb_gfx.h")
 #include "fb_gfx.h"
+#define HAVE_FB_GFX 1
+#endif
+#endif
+#ifndef HAVE_FB_GFX
+#define HAVE_FB_GFX 0
+// Minimal stand-in so the overlay compiles without the fb_gfx component: same field names,
+// RGB565 only, 0x00BBGGRR color like fb_gfx, no text.
+typedef enum { FB_RGB888, FB_BGR888, FB_RGB565, FB_BGR565, FB_GRAY } fb_format_t;
+typedef struct { int width; int height; int bytes_per_pixel; fb_format_t format; uint8_t* data; } fb_data_t;
+static inline void fbPix(fb_data_t* g, int x, int y, uint32_t c) {
+  uint8_t r = c & 0xFF, gr = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
+  uint16_t v = ((r >> 3) << 11) | ((gr >> 2) << 5) | (b >> 3);
+  uint8_t* p = g->data + (y * g->width + x) * 2;
+  p[0] = v >> 8; p[1] = v & 0xFF;
+}
+static void fb_gfx_drawFastHLine(fb_data_t* g, int32_t x, int32_t y, int32_t w, uint32_t c) { for (int i = 0; i < w; i++) fbPix(g, x + i, y, c); }
+static void fb_gfx_drawFastVLine(fb_data_t* g, int32_t x, int32_t y, int32_t h, uint32_t c) { for (int i = 0; i < h; i++) fbPix(g, x, y + i, c); }
+static void fb_gfx_fillRect(fb_data_t* g, int32_t x, int32_t y, int32_t w, int32_t h, uint32_t c) { for (int j = 0; j < h; j++) fb_gfx_drawFastHLine(g, x, y + j, w, c); }
+static uint32_t fb_gfx_print(fb_data_t*, int32_t, int32_t, uint32_t, const char*) { return 0; }
+#endif
 #include "config.h"
 #include "camera_pins.h"
 #include "detector.h"
@@ -38,6 +60,7 @@ static String netInfo;
 #define COLOR_GREEN  0x0000FF00
 #define COLOR_YELLOW 0x0000FFFF
 #define COLOR_CYAN   0x00FFFF00
+#define COLOR_MAGENTA 0x00FF00FF
 
 // IDF-component log sink. The esp32-camera driver task (cam_task) runs on a 2 KB stack in
 // this SDK build. Its "EV-VSYNC-OVF" message is routed by the esp_diagnostics log wrappers
@@ -151,12 +174,15 @@ static void drawOverlay(camera_fb_t* fb, const Target& t) {
   if (t.found && t.kind == TARGET_TORSO && lastFace.found) {
     gfxBox(&g, lastFace.x, lastFace.y, lastFace.w, lastFace.h, COLOR_GREEN);
     char s[24];
-    snprintf(s, sizeof(s), "face %lums", (unsigned long)(millis() - tracker.lastFaceMs));
+    snprintf(s, sizeof(s), "%s %lums", lastFace.kind == TARGET_PERSON ? "body" : "face",
+             (unsigned long)(millis() - tracker.lastFaceMs));
     gfxText(&g, 4, 30, COLOR_GREEN, s);              // second text row, below SCAN
   }
   if (t.found) {
     uint32_t color = tracker.locked() ? COLOR_RED
-                     : (t.kind == TARGET_FACE ? COLOR_GREEN : (t.kind == TARGET_TORSO ? COLOR_CYAN : COLOR_YELLOW));
+                     : (t.kind == TARGET_FACE ? COLOR_GREEN
+                        : (t.kind == TARGET_PERSON ? COLOR_MAGENTA
+                           : (t.kind == TARGET_TORSO ? COLOR_CYAN : COLOR_YELLOW)));
     gfxBox(&g, t.x, t.y, t.w, t.h, color);
     gfxFill(&g, t.x - 2, t.y - 2, 5, 5, color);
     int ax, ay;
@@ -179,7 +205,11 @@ static Target personPipeline(camera_fb_t* fb, uint32_t now) {
 
   if (!s.torsoTrack) {
     torso.reset();
+#if HAVE_ESPDET
+    Target f = personDetect(fb, s.personThr);
+#else
     Target f = detector.detectFace(fb);
+#endif
     lastFace = f;
     return f;
   }
@@ -187,19 +217,38 @@ static Target personPipeline(camera_fb_t* fb, uint32_t now) {
   bool runFace = !torso.active() || (now - lastFaceRun) >= (uint32_t)s.redetectMs;
   Target face;
   if (runFace) {
+#if HAVE_ESPDET
+    face = personDetect(fb, s.personThr);       // whole-body box; "face" name kept for the flow below
+#else
     face = detector.detectFace(fb);
+#endif
     lastFaceRun = now;
   }
 
   if (face.found) {
     lastFace = face;
     tracker.lastFaceMs = now;
-    // Torso box: 1.6 face widths wide, 1.4 face heights tall, starting half a face below the chin.
-    int tw = (int)(face.w * 1.6f), th = (int)(face.h * 1.4f);
-    int tcx = face.x, tcy = face.y + face.h + th / 2;
+    int tw, th, tcx, tcy;
+    float aimY;
+    if (face.kind == TARGET_PERSON) {
+      // Body box: seed the color tracker on the upper torso (below the head, above the waist).
+      int top = face.y - face.h / 2;
+      tw = (int)(face.w * 0.8f);
+      th = (int)(face.h * 0.35f);
+      tcx = face.x;
+      tcy = top + (int)(face.h * 0.20f) + th / 2;
+      aimY = top + s.aimFrac * face.h;
+    } else {
+      // Face box: torso 1.6 face widths wide, 1.4 face heights tall, starting half a face below the chin.
+      tw = (int)(face.w * 1.6f);
+      th = (int)(face.h * 1.4f);
+      tcx = face.x;
+      tcy = face.y + face.h + th / 2;
+      aimY = face.y + s.aimBelow * face.w;
+    }
     if (tcy + th / 2 > fb->height) tcy = fb->height - th / 2;
+    if (tcy - th / 2 < 0) tcy = th / 2;
     // Aim point relative to the torso center, in torso heights, so it rides along with the blob.
-    float aimY = face.y + s.aimBelow * face.w;
     float aimRel = th > 0 ? (aimY - tcy) / (float)th : 0;
     if (th >= 8 && tw >= 8) torso.refresh(fb, tcx, tcy, tw, th, aimRel, torso.active() ? 0.3f : 1.0f);
     tracker.torsoAimY = -1;
@@ -355,8 +404,8 @@ void setup() {
   pinMode(PIN_TRIGGER_BTN, INPUT_PULLUP);
   delay(300);
   Serial.printf("\n[turret] XIAO ESP32S3 Sense tracking turret  (reset reason %d)\n", (int)esp_reset_reason());
-  Serial.printf("[turret] psram %u bytes, face detection %s\n", (unsigned)ESP.getPsramSize(),
-                HAVE_ESP_DL ? "available" : "NOT available (needs arduino-esp32 2.0.x esp-dl)");
+  Serial.printf("[turret] psram %u bytes, detector: %s\n", (unsigned)ESP.getPsramSize(),
+                HAVE_ESPDET ? "ESPDet-Pico person (esp-dl 3.x)" : (HAVE_ESP_DL ? "esp-dl 1.x face" : "none"));
 
   displayBegin();
   buzzerBegin();
@@ -367,6 +416,7 @@ void setup() {
     Serial.println("[turret] camera unavailable");
   }
   detector.begin();
+  if (HAVE_ESPDET) Serial.printf("[turret] ESPDet-Pico person detector %s\n", personDetectBegin() ? "loaded" : "FAILED");
   frames.begin();
   wifiBegin();
   webBegin(&tracker, &frames, &stats);

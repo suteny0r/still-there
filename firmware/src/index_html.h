@@ -66,6 +66,8 @@ h3{margin:12px 0 4px;font-size:13px;color:#888;text-transform:uppercase;letter-s
   <label>Face re-detect ms <input type="range" data-var="redetect" min="200" max="5000" step="100" data-key="redetect"><span class="v"></span></label>
   <label>Torso min confidence <input type="range" data-var="torsoconf" min="0.02" max="0.6" step="0.01" data-key="torsoConf"><span class="v"></span></label>
   <label>Drop track w/o face (s) <input type="range" data-var="facetmo" min="1000" max="30000" step="1000" data-key="faceTimeout"><span class="v"></span></label>
+  <label>Aim down body (fraction) <input type="range" data-var="aimfrac" min="0" max="1" step="0.05" data-key="aimFrac"><span class="v"></span></label>
+  <label>Person score threshold <input type="range" data-var="personthr" min="0.1" max="0.95" step="0.05" data-key="personThr"><span class="v"></span></label>
   <div class="row"><button data-t="scan" data-key="scan">Scan when lost</button></div>
   <label>Scan speed &deg;/s <input type="range" data-var="scanspeed" min="2" max="120" step="1" data-key="scanSpeed"><span class="v"></span></label>
   <label>Scan tilt <input type="range" data-var="scantilt" min="35" max="145" step="1" data-key="scanTilt"><span class="v"></span></label>
@@ -109,7 +111,7 @@ document.onkeydown=e=>{
   else if(k>='1'&&k<='4')ctl('mode',+k-1);else return;
   e.preventDefault();
 };
-const modes=['MANUAL','PERSON','MOTION','SCAN'], kinds=['','face','torso','motion'];
+const modes=['MANUAL','PERSON','MOTION','SCAN'], kinds=['','face','torso','motion','person'];
 async function poll(){
   try{
     const r=await fetch('/status',{cache:'no-store'});st=await r.json();
@@ -120,7 +122,8 @@ async function poll(){
     $$('input[data-var]').forEach(r=>{if(r!==editing){r.value=st[r.dataset.key];r.nextElementSibling.textContent=st[r.dataset.key];}});
     if(editing!==pan){pan.value=st.panSet;$('#panv').textContent=st.pan.toFixed(1);}
     if(editing!==tilt){tilt.value=st.tiltSet;$('#tiltv').textContent=st.tilt.toFixed(1);}
-    if(!st.faceOk){$('#mface').disabled=true;$('#mface').title='esp-dl not available in this build';}
+    if(!st.faceOk&&st.detector!=='espdet-person'){$('#mface').disabled=true;$('#mface').title='no detector in this build';}
+    if(st.detector)$('#mface').textContent='Person ('+st.detector+')';
     const tgt=(st.found?`${kinds[st.kind]||'target'} ${st.tx},${st.ty} ${st.tw}x${st.th} s=${st.score}`:(st.fresh?'target (coasting)':'no target'))+(st.faceAge>=0?`  face seen ${st.faceAge<1000?st.faceAge+' ms':(st.faceAge/1000).toFixed(1)+' s'} ago`:'');
     $('#stat').innerHTML=`mode ${modes[st.mode]}${st.scanning?' / scanning':''}\npan ${st.pan.toFixed(1)}  tilt ${st.tilt.toFixed(1)}\n${tgt}${st.locked?'  <span class="lock">LOCK</span>':''}\n${st.fps} fps  infer ${st.infer} ms  rssi ${st.rssi}\nheap ${(st.heap/1024)|0}k  psram ${(st.psram/1024)|0}k`;
   }catch(e){$('#stat').textContent='disconnected';}

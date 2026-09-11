@@ -1,7 +1,7 @@
 #include "display.h"
 #include "config.h"
 
-#if EXPANSION_BOARD
+#if EXPANSION_BOARD && !defined(NO_OLED)
 #include <Wire.h>
 #include <U8g2lib.h>
 
@@ -81,6 +81,29 @@ void buzzerUpdate(Tracker& tracker) {
   wasFresh = fresh;
 }
 
+#elif EXPANSION_BOARD
+// Expansion board without the OLED driver: keep the buzzer, stub the display.
+void displayBegin() {}
+void displayBoot(const char*, const char*) {}
+void displayUpdate(Tracker&, const Stats&, const String&) {}
+void buzzerBegin() {
+  pinMode(PIN_BUZZER, OUTPUT);
+  digitalWrite(PIN_BUZZER, LOW);
+#if ESP_ARDUINO_VERSION_MAJOR < 3
+  setToneChannel(4);
+#endif
+}
+void buzzerBeep(uint16_t freqHz, uint16_t ms) { tone(PIN_BUZZER, freqHz, ms); }
+void buzzerUpdate(Tracker& tracker) {
+  static bool wasLocked = false, wasFresh = false;
+  bool locked = tracker.locked();
+  bool fresh = tracker.targetFresh(millis());
+  if (locked && !wasLocked) buzzerBeep(2200, 120);
+  else if (fresh && !wasFresh) buzzerBeep(1400, 40);
+  else if (!fresh && wasFresh) buzzerBeep(700, 80);
+  wasLocked = locked;
+  wasFresh = fresh;
+}
 #else
 void displayBegin() {}
 void displayBoot(const char*, const char*) {}

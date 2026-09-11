@@ -27,14 +27,14 @@ static esp_err_t status_handler(httpd_req_t* req) {
   Target t = g_tracker->lastTarget();
   uint32_t now = millis();
   bool fresh = g_tracker->targetFresh(now);
-  char buf[1200];
+  char buf[1400];
   snprintf(buf, sizeof(buf),
            "{\"mode\":%d,\"pan\":%.1f,\"tilt\":%.1f,\"panSet\":%.1f,\"tiltSet\":%.1f,"
            "\"found\":%s,\"fresh\":%s,\"tx\":%d,\"ty\":%d,\"tw\":%d,\"th\":%d,\"score\":%.2f,"
            "\"locked\":%s,\"scanning\":%s,\"laser\":%s,\"moving\":%s,"
            "\"fps\":%.1f,\"infer\":%u,\"rssi\":%d,\"heap\":%u,\"psram\":%u,\"uptime\":%u,\"resetReason\":%d,\"faceOk\":%s,"
            "\"kp\":%.1f,\"smooth\":%.2f,\"maxStep\":%.1f,\"dead\":%d,\"invPan\":%s,\"invTilt\":%s,"
-           "\"settle\":%d,\"lost\":%d,\"scan\":%s,\"scanSpeed\":%.1f,\"scanTilt\":%.1f,\"lockMs\":%d,\"lockRelease\":%.1f,\"aimBelow\":%.2f,\"torso\":%s,\"redetect\":%d,\"torsoConf\":%.2f,\"kind\":%d,\"faceAge\":%d,\"faceTimeout\":%d,"
+           "\"settle\":%d,\"lost\":%d,\"scan\":%s,\"scanSpeed\":%.1f,\"scanTilt\":%.1f,\"lockMs\":%d,\"lockRelease\":%.1f,\"aimBelow\":%.2f,\"torso\":%s,\"redetect\":%d,\"torsoConf\":%.2f,\"kind\":%d,\"faceAge\":%d,\"faceTimeout\":%d,\"aimFrac\":%.2f,\"personThr\":%.2f,\"detector\":\"%s\","
            "\"autoFire\":%s,\"mthr\":%d,\"mmin\":%d,\"quality\":%d,\"hmirror\":%s,\"vflip\":%s,"
            "\"panTrim\":%.1f,\"tiltTrim\":%.1f}",
            (int)g_tracker->mode(), g_tracker->pan(), g_tracker->tilt(), g_tracker->panSet(), g_tracker->tiltSet(),
@@ -53,6 +53,7 @@ static esp_err_t status_handler(httpd_req_t* req) {
            s.scanSpeed, s.scanTilt, s.lockMs, s.lockRelease, s.aimBelow, s.torsoTrack ? "true" : "false",
            s.redetectMs, s.torsoMinConf, (int)t.kind,
            g_tracker->lastFaceMs ? (int)(now - g_tracker->lastFaceMs) : -1, s.faceTimeoutMs,
+           s.aimFrac, s.personThr, HAVE_ESPDET ? "espdet-person" : (HAVE_ESP_DL ? "esp-dl-face" : "none"),
            s.autoFire ? "true" : "false", s.motionThr,
            s.motionMinCells, s.jpegQuality, s.hmirror ? "true" : "false", s.vflip ? "true" : "false",
            s.panTrim, s.tiltTrim);
@@ -91,7 +92,7 @@ static esp_err_t control_handler(httpd_req_t* req) {
 
   if (!strcmp(var, "mode")) {
     if (i < 0 || i > 3) ok = false;
-#if !HAVE_ESP_DL
+#if !HAVE_ESP_DL && !HAVE_ESPDET
     if (i == MODE_FACE) ok = false;
 #endif
     if (ok) g_tracker->setMode((Mode)i);
@@ -145,6 +146,10 @@ static esp_err_t control_handler(httpd_req_t* req) {
     s.torsoMinConf = constrain(f, 0.02f, 0.9f);
   } else if (!strcmp(var, "facetmo")) {
     s.faceTimeoutMs = constrain(i, 1000, 60000);
+  } else if (!strcmp(var, "aimfrac")) {
+    s.aimFrac = constrain(f, 0.0f, 1.0f);
+  } else if (!strcmp(var, "personthr")) {
+    s.personThr = constrain(f, 0.1f, 0.95f);
   } else if (!strcmp(var, "mthr")) {
     s.motionThr = constrain(i, 1, 200);
   } else if (!strcmp(var, "mmin")) {
