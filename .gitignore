@@ -1,0 +1,7 @@
+firmware/.pio/
+firmware/.vscode/
+firmware/include/secrets.h
+firmware/arduino/
+.vs/
+__pycache__/
+*.pyc

@@ -1,0 +1,30 @@
+# Bill of materials (excluding XIAO ESP32S3 Sense and MG90S servos)
+
+Amazon links found 2026-09-10; listings change, so check quantity and specs before ordering.
+Only the first six rows are required for a working turret; the rest are optional or convenience.
+
+| # | Qty needed | Item | What it is for | Amazon |
+|--:|-----------:|------|----------------|--------|
+| 1 | 1 kg | FLASHFORGE PETG Pro 1.75 mm, black | all five printed parts (73 g per set, so one spool covers many iterations). Use the `Flashforge PETG Pro @FF C5P` filament preset in Flash Studio for this spool; the project ships with `PETG Basic`, swap it in the filament dropdown | [B07Y9S22P5](https://www.amazon.com/FLASHFORGE-Filament-Dimensional-Mechanical-Waterproof/dp/B07Y9S22P5) |
+| 2 | 10 pcs (2 base lid, 2 pan flange, 2 tilt flange, 2 head lid, 2 spare) M2x8; 4 pcs M2x5 (horn to head) | M2 flat-head self-tapping screw assortment, 800 pcs, 4 to 20 mm | every M2 pilot in the design is 1.75 mm for self-tapping M2 | [B0CY986CCR](https://www.amazon.com/Tapping-Woodworking-Fastener-Drilling-Assortment/dp/B0CY986CCR) |
+| 3 | 1 | M3 x 12 button-head socket screw, stainless (pack) | tilt pivot through arm B into the head; the 1.6 mm countersink in the arm is sized for a button head (5.7 dia x 1.65) | [B07QDWDB5D](https://www.amazon.com/M3x12-Button-Socket-Screws-Stainless/dp/B07QDWDB5D) |
+| 4 | 1 (pack of 5) | 470 uF 16 V radial electrolytic capacitor, E-Projects | across servo 5 V / GND at the servo connector; stops brown-out resets when both servos start | [B07YN5MZBY](https://www.amazon.com/Projects-Radial-Electrolytic-Capacitor-470uF/dp/B07YN5MZBY) |
+| 5 | 1 | 5 V 3 A USB-C power adapter, UL listed (Security-01) | main supply into the base inlet; 3 A covers two MG90S stalling plus the ESP32-S3 | [B09JW4QQJ2](https://www.amazon.com/Security-01-Supply-Adapter-Type-C-MLF-C060503000CU/dp/B09JW4QQJ2) |
+| 6 | 1 (pack of 14) | Amabro USB-C panel-mount female socket breakout, 20.1 x 6.7 mm board, V/GND/D+/D-/CC pads, 2 mm screw hole | power inlet in the base rim notch. The socket passes through the 13 x 11.5 mm notch; the board sits inside against the wall (hot glue or M2 screw through its hole). Solder the servo/board 5 V and GND leads to the V and GND pads. Only V and GND are needed | [B0H9S9C73Q](https://www.amazon.com/Amabro-Connector-Female-Socket-Breakout/dp/B0H9S9C73Q) |
+| 7 | 1 kit | 22 AWG silicone stranded hookup wire, 6 colors (BINNEKER) | 5 V / GND run from the base up through the yoke to the head (solder to the XIAO 5V and GND pads, exit via the 5 mm lid grommet), servo power distribution | [B07WYYDBZP](https://www.amazon.com/BINNEKER-Silicone-Resistant-Electronic-Stranded/dp/B07WYYDBZP) |
+| 8 | 4 (pack of 100) | 10 x 3 mm clear self-adhesive rubber feet (Alamic) | base lid foot recesses are 10.5 mm dia x 0.8 mm deep | [B07JFGW1XC](https://www.amazon.com/Bumpers-Alamic-Adhesive-Transparent-Dampening/dp/B07JFGW1XC) |
+| 9 | 1 (pack of 10), optional | 650 nm 5 V 5 mW red dot laser diode module, 6 mm barrel (HiLetgo) | "fire" indicator in the 6.3 mm saddle on top of the head; driven from D2 (GPIO3). These modules draw about 20 mA at 5 V, drive it through an NPN/MOSFET or a 2N2222 from the GPIO rather than directly | [B071FT9HSV](https://www.amazon.com/HiLetgo-10pcs-650nm-Diode-Laser/dp/B071FT9HSV) |
+| 10 | 1 (pack of 6), optional | 12 mm momentary push button, pre-wired, panel mount (DaierTek) | trigger button on D3 (GPIO4) to GND; toggles the laser. Needs a 12 mm hole in the base wall (not in the CAD; add one or skip) | [B0C8HM4T24](https://www.amazon.com/DaierTek-Momentary-Button-Switch-Waterproof/dp/B0C8HM4T24) |
+| 11 | 1 (2-pack), optional | Right-angle USB-C to USB-A cable, 1 ft (SUNGUY) | flashing/serial with the board in the head; the head floor slot takes a right-angle plug that runs backward. Not needed if you pull the lid to flash | [B0784F9JP2](https://www.amazon.com/SUNGUY-Braided-Charging-Samsung-OnePlus/dp/B0784F9JP2) |
+
+## Not needed
+
+- Servo horns and horn screws: included with the MG90S 4-pack (single, double and cross arms).
+- Resistors for the laser: the 5 V modules have their own current limiting; the transistor is only there to keep 20 mA off the GPIO.
+- Rubber feet adhesive, nuts, washers: none used.
+
+## Notes
+
+- Item 6 alternative: any USB-C female breakout with solder pads works; a 5 V barrel jack also fits the same notch (13 x 11.5 mm) if you prefer a wall-wart with a barrel plug.
+- Item 2 alternative if you want machine screws instead of self-tapping: heat-set inserts are not designed in; the pilots are plain 1.75 mm holes.
+- If you print PLA instead, any 1.75 mm PLA works with the `Flashforge PLA Basic @FF C5P` preset.
