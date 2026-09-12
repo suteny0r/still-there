@@ -25,11 +25,12 @@ Purchase links for everything below except the board and servos: [BOM.md](BOM.md
 | 1 | 6 mm laser diode module (optional) | 5 V, fits the saddle on the head |
 | 1 | 470 uF+ electrolytic across servo 5 V/GND | servo current spikes reset the board otherwise |
 | 1 | 5 V 2 A supply | USB-C into the base inlet or a panel-mount breakout |
-| 8 | M2 x 8 self-tapping screws | 4 base lid, 2 tilt servo flange, 2 head lid |
-| 2 | M2 x 6 self-tapping screws | pan servo flange |
-| 4 | M2 x 5 screws | horns: 2 through the head wall into the single arm, 2 through the disc into the double arm |
+| 6 | M2 x 8 self-tapping screws | 4 base lid, 2 head lid |
+| 2 | M2 x 8 self-tapping screws | head wall into the single-arm horn (from inside the head) |
+| 2 | M2 x 6 self-tapping screws | disc into the double-arm horn (from the top of the disc) |
+| 4 | servo ear screws | supplied with the servos: 2 pan servo to base plate, 2 tilt servo to arm A |
+| 2 | servo center horn screws | supplied with the servos |
 | 1 | M3 x 12 screw | tilt pivot (arm B into the head) |
-| 2 | servo horn screws | supplied with the servos |
 | 4 | 10 mm rubber feet | recesses in the base lid |
 
 ## Wiring
