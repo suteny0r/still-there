@@ -27,7 +27,7 @@ Purchase links for everything below except the board and servos: [BOM.md](BOM.md
 | 1 | 5 V 2 A supply | USB-C into the base inlet or a panel-mount breakout |
 | 8 | M2 x 8 self-tapping screws | 4 base lid, 2 tilt servo flange, 2 head lid |
 | 2 | M2 x 6 self-tapping screws | pan servo flange |
-| 4 | M2 x 5 screws | horn to head (through the head wall into the horn arms) |
+| 4 | M2 x 5 screws | horns: 2 through the head wall into the single arm, 2 through the disc into the double arm |
 | 1 | M3 x 12 screw | tilt pivot (arm B into the head) |
 | 2 | servo horn screws | supplied with the servos |
 | 4 | 10 mm rubber feet | recesses in the base lid |
@@ -180,12 +180,13 @@ supports are needed. Clearances (`clr`, `lip_clr`, `m2_*`/`m3_*` pilots) are at 
 2. Base: drop the pan servo through the top plate, flange up, screws into the two bosses. Slide the
    power inlet board into the rim notch, route its cable and the servo leads through the 12 mm hole,
    then screw on the lid.
-3. Yoke: screw the pan horn into the pocket under the disc (4 small screws through the radial slots
-   into the horn arms). Fit the tilt servo through arm A from the outside; the flange lands on the
+3. Yoke: seat the **double-arm** horn in the channel under the disc (arms along the camera axis) and
+   drive two M2 screws down through the slots into arm holes. Fit the tilt servo through arm A from the outside; the flange lands on the
    outer face; two M2 screws through the flange into the arm. Push the yoke onto the pan spline
    with the arms square to the camera direction and drive the horn screw down through the disc
    countersink.
-4. Head: screw the tilt horn into the pocket on the +Y face from inside the head (4x M2). Fit the
+4. Head: lay the **single-arm** horn in the channel on the +Y face, arm pointing down (it may stick
+   out ~3 mm past the bottom edge; trim it if you like) and drive two M2 screws from inside the head. Fit the
    board stack, camera to the window, USB-C down; press the lid on and drive the two M2 screws
    through the top wall. Slide the head between the arms, horn onto the spline, then the M3 pivot
    through arm B into the boss on the -Y face. Center screw for the horn goes through the 4.6 mm
@@ -199,10 +200,29 @@ All at the top of `turret.scad`, mm:
 - `sv_*`: MG90S envelope from the TowerPro configuration table (A 32.5 ear span, B 22.8 body,
   C 28.4 bottom to spline top, D 12.4 width, F 18.5 bottom to ear top). The body through-cuts use a
   looser 23.6 x 12.8 envelope because clones measure up to 23.9 x 12.7; the ear screws (slotted
-  pilots, 27.3 to 28.3 mm spacing) locate the servo. `sv_horn_h` (boss top to horn plate outer face,
-  default 4.8) sets the head-to-arm gap; measure the cross horn seated on a spline and set it. The
-  gap carries an extra `gap_margin` (0.8) so an error leaves the hub slightly short on the spline
-  rather than the head rubbing the arm.
+  pilots, 27.3 to 28.3 mm spacing) locate the servo.
+- Servo and horn dimensions measured on the SupSeek MG90S kit (two units), 2026-09-11:
+
+  | | measured | in CAD |
+  |---|---|---|
+  | body length x width | 22.8 x 12.4 | 23.6 x 12.8 cut + clearance |
+  | ear span | 31.2 / 32.2 | ears rest on the surface, no cut |
+  | ear hole spacing | 27.8 / 28.0 | slotted pilots 27.3 to 28.5 |
+  | ear top to boss top (K) | 7.3 / 7.5 | 7.4 |
+  | hub diameter | 6.8 | 7.4 counterbore |
+  | arm plate thickness (E) | 2.0 | 2.6 recess |
+  | arm width (D) | 5.1 | 6.1 channel |
+  | single arm, center to tip (C) | 18.0 | head channel, open to the bottom edge |
+  | double arm, tip to tip (J) | 31.2 | disc channel |
+  | single arm: boss top to arm face / hub top | 3.8 / 6.4 | head gap; 5.8 deep hub counterbore (horn wall 6.5) |
+  | double arm: boss top to arm face / hub top | 5.85 / 6.26 | disc height; 3.6 deep counterbore (disc 5.0) |
+
+  The kit's cross horn is asymmetric (~31 mm long axis) and does not fit the head, so the pan disc
+  takes the **double arm** and the head the **single arm**, pointing down (it extends ~3.5 mm past
+  the head's bottom edge; trim it flush if you like). Pockets are rounded channels with one
+  continuous M2 screw slot per arm, so hole positions in the horn do not matter. The horn screw on
+  the disc sits on top without a countersink. `gap_margin` (0.8) still biases toward the hub seating
+  slightly short rather than the head rubbing the arm.
 - `pcb_w`/`pcb_l` 17.5 x 21.0, `stack_h` 11.0 (lens top to XIAO back), `cam_module_h` 5.0,
   `cam_dz` 2.0. The lens position on the Sense board is approximate; the window is 10 mm and the
   head interior has 0.8 mm width slack, so measure your board and set `cam_dz` before printing.

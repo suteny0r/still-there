@@ -1,5 +1,5 @@
 // =============================================================================
-//  Tracking turret enclosure for Seeed Studio XIAO ESP32S3 Sense + 2x MG90S
+//  Tracking turret enclosure for Seeed Studio XIAO ESP32S3 Sense + 2x MG90S (SupSeek)
 //  OpenSCAD 2021.01
 //
 //  Parts (select with -D part="<name>"):
@@ -40,23 +40,34 @@ sv_cut_w    = 12.8;
 sv_h        = 22.7;         // body height, bottom of body to top of body (below the boss)
 sv_flange_z = 16.0;         // body bottom to flange bottom (F 18.5 - flange_t)
 sv_flange_t = 2.5;
-sv_flange_l = 32.5;
+sv_flange_l = 32.5;         // MEASURED 31.2 / 32.2 on the two units
 sv_hole_d   = 2.0;
-sv_hole_sp  = 27.8;         // flange screw hole spacing (slotted +-0.5 in the cuts)
+sv_hole_sp  = 27.9;         // MEASURED 27.8 / 28.0; pilots are slotted +-0.6 (27.3 .. 28.5)
 sv_shaft_off= 5.9;          // shaft axis from the near body end (along X)
 sv_boss_d   = 12.0;         // round gear-head boss; must be < sv_cut_w + 2*clr to pass the arm
-sv_boss_h   = 2.5;          // boss_h + spline_h = C 28.4 - sv_h 22.7 = 5.7
+sv_boss_h   = 3.2;          // MEASURED K (ear top -> boss top) 7.3 / 7.5: 4.2 body above ears + 3.2
 sv_spline_d = 4.8;          // 20T spline
 sv_spline_h = 3.2;
-sv_horn_d   = 21.0;         // 4-arm cross horn envelope (single/double arm horns are longer)
-sv_horn_t   = 1.5;          // horn plate thickness
-sv_horn_h   = 4.8;          // boss top to horn plate OUTER face (hub height) -- MEASURE YOURS
+// Horns (MEASURED on the kit, 2026-09-11). The cross horn is asymmetric (~31 mm long axis) and
+// does not fit the head, so the head uses the SINGLE arm (vertical, pointing down) and the pan
+// disc the DOUBLE arm. Each horn seats differently on the spline, so hub heights are per horn.
+sv_hub_d    = 6.8;          // hub outer diameter (both horns)
+sv_horn_t   = 2.0;          // arm plate thickness (E)
+sv_arm_w    = 5.1;          // arm width (D)
+sv_single_l = 18.0;         // single arm, hub center -> tip (C)
+sv_double_l = 31.2;         // double arm, tip -> tip (J)
+sv_horn_h_s = 3.8;          // single arm: boss top -> outer face of the arm plate (A1s)
+sv_hub_top_s= 6.4;          // single arm: boss top -> top of the hub (A2s), 2.6 proud of the arm
+sv_horn_h_d = 5.85;         // double arm: boss top -> outer face of the arm plate (A1)
+sv_hub_top_d= 6.26;         // double arm: boss top -> top of the hub (A2), 0.41 proud of the arm
 gap_margin  = 0.8;          // extra head-to-arm clearance; a short hub seat beats a rubbing head
 sv_cx       = sv_shaft_off - sv_l/2;            // body center X in the local frame (-5.5)
 sv_top      = sv_h - sv_flange_z;               // body top above flange bottom (6.7)
 sv_boss_top = sv_top + sv_boss_h;               // 9.2
-sv_horn_face= sv_boss_top + sv_horn_h;          // 14.0  (horn outer face)
-horn_pocket = 2.0;                              // recess depth for the horn plate
+sv_horn_face= sv_boss_top + sv_horn_h_d;        // double arm outer face above the flange bottom (pan)
+horn_pocket = sv_horn_t + 0.6;                  // recess depth for the horn arm plate (2.6)
+hub_relief_s= horn_pocket + (sv_hub_top_s - sv_horn_h_s) + 0.6;  // head counterbore for the single-arm hub (5.8)
+hub_relief_d= horn_pocket + (sv_hub_top_d - sv_horn_h_d) + 0.6;  // disc counterbore for the double-arm hub (3.6)
 
 // -------------------------------------------- XIAO ESP32S3 Sense board stack
 pcb_w        = 17.5;        // board width  (across the two pin rows)
@@ -78,7 +89,7 @@ head_ix   = stack_h + 9.0;                  // 20.0 interior depth (front inner 
 lid_t     = 2.0;
 lid_lip   = 3.0;                            // lip depth into the shell
 lip_t     = 1.4;
-side_a_t  = wall + 2.5;                     // +Y wall (horn side): 4.5, pocket leaves 2.3
+side_a_t  = wall + 4.5;                     // +Y wall (horn side): 6.5, takes the 5.8 hub counterbore
 side_b_t  = wall + 3.5;                     // -Y wall (pivot side): 5.5, M3 pilot depth 5
 head_y0   = -(head_iy/2 + side_b_t);        // -14.65
 head_y1   =  (head_iy/2 + side_a_t);        //  13.65
@@ -93,11 +104,11 @@ laser_d      = 6.3;
 
 // --------------------------------------------------------------------- yoke
 disc_d   = 56;
-disc_t   = 3.5;
+disc_t   = 5.0;                             // takes the 3.6 double-arm counterbore from below
 arm_t    = 3.0;
 arm_w    = 26;
 axis_h   = 34;                              // disc top -> tilt axis
-gap_a    = (sv_top - sv_flange_t - arm_t) + sv_boss_h + sv_horn_h - horn_pocket + gap_margin;
+gap_a    = (sv_top - sv_flange_t - arm_t) + sv_boss_h + sv_horn_h_s - horn_pocket + gap_margin;  // single arm on the head
 gap_b    = pivot_ring_h;
 arm_a_in = head_y1 + gap_a;                 // arm A inner face (Y)
 arm_a_out= arm_a_in + arm_t;
@@ -146,8 +157,8 @@ module servo(mock = false) {
     translate([0, 0, sv_boss_top]) cylinder(d = sv_spline_d + 2*c, h = sv_spline_h);
   }
   if (mock) color("white") {
-    translate([0, 0, sv_boss_top]) cylinder(d = 7, h = sv_horn_h);
-    translate([0, 0, sv_horn_face - sv_horn_t]) cylinder(d = sv_horn_d, h = sv_horn_t);
+    translate([0, 0, sv_boss_top]) cylinder(d = sv_hub_d, h = sv_hub_top_d);               // hub
+    translate([0, 0, sv_horn_face - sv_horn_t / 2]) cube([sv_double_l, sv_arm_w, sv_horn_t], center = true);  // double arm
   }
 }
 
@@ -157,23 +168,33 @@ module servo(mock = false) {
 module servo_cut(z0 = -30, z1 = 30, pilot_z0 = -12, pilot_z1 = 30) {
   translate([sv_cx, 0, z0]) linear_extrude(z1 - z0)
     square([sv_cut_l + 2*clr, sv_cut_w + 2*clr], center = true);
-  // slotted pilot holes: +-0.5 along the ear axis absorbs 27.3..28.3 hole spacing
+  // slotted pilot holes: +-0.6 along the ear axis absorbs 27.3..28.5 hole spacing (27.8 / 28.0 measured)
   for (s = [-1, 1]) hull() {
-    translate([sv_cx + s*(sv_hole_sp/2 - 0.5), 0, pilot_z0]) cylinder(d = m2_pilot, h = pilot_z1 - pilot_z0);
-    translate([sv_cx + s*(sv_hole_sp/2 + 0.5), 0, pilot_z0]) cylinder(d = m2_pilot, h = pilot_z1 - pilot_z0);
+    translate([sv_cx + s*(sv_hole_sp/2 - 0.6), 0, pilot_z0]) cylinder(d = m2_pilot, h = pilot_z1 - pilot_z0);
+    translate([sv_cx + s*(sv_hole_sp/2 + 0.6), 0, pilot_z0]) cylinder(d = m2_pilot, h = pilot_z1 - pilot_z0);
   }
 }
 
-// Recess for a round/cross horn plus radial slots for M2 screws into the horn,
-// cut into a face lying in the XY plane at local Z=0, recess going -Z.
-module horn_pocket(through = 8) {
-  translate([0, 0, -horn_pocket]) cylinder(d = sv_horn_d + 2*clr, h = horn_pocket + 0.01);
-  translate([0, 0, -through]) cylinder(d = 4.6, h = 2*through);              // center screw
-  for (a = [0, 90, 180, 270]) rotate([0, 0, a])
-    hull() {
-      translate([5.0, 0, -through]) cylinder(d = 1.9, h = 2*through);
-      translate([9.5, 0, -through]) cylinder(d = 1.9, h = 2*through);
-    }
+// Horn recess cut into a face lying in the XY plane at local Z=0, recess going -Z.
+// A rounded channel takes the arm plate, a counterbore takes the hub that stands proud of it,
+// a center hole passes the horn screw, and one continuous slot per arm takes M2 screws through
+// the wall into any of the arm's holes. dirs: list of unit directions (in the face plane) the
+// arm(s) point; len: hub center -> tip for each direction.
+module horn_channel(dirs, len, relief, center_d, through = 8) {
+  w = sv_arm_w + 1.0;
+  // arm channel(s)
+  for (d = dirs) hull() {
+    translate([0, 0, -horn_pocket]) cylinder(d = w, h = horn_pocket + 0.01);
+    translate([d[0] * (len + 1.0), d[1] * (len + 1.0), -horn_pocket]) cylinder(d = w, h = horn_pocket + 0.01);
+  }
+  // hub counterbore + center screw
+  translate([0, 0, -relief]) cylinder(d = sv_hub_d + 0.6, h = relief + 0.01);
+  translate([0, 0, -through]) cylinder(d = center_d, h = 2 * through);
+  // screw slot per arm: from just outside the hub to near the tip
+  for (d = dirs) hull() {
+    translate([d[0] * 5.0, d[1] * 5.0, -through]) cylinder(d = 1.9, h = 2 * through);
+    translate([d[0] * (len - 2.0), d[1] * (len - 2.0), -through]) cylinder(d = 1.9, h = 2 * through);
+  }
 }
 
 // =============================================================================
@@ -262,10 +283,10 @@ module yoke() {
       gusset(arm_a_in, arm_a_out);
       gusset(arm_b_in, arm_b_out);
     }
-    // pan horn pocket on the underside
-    translate([0, 0, disc_z0 + horn_pocket]) horn_pocket(through = 8);
-    // countersink for the center screw head from the top
-    translate([0, 0, disc_z1 - 1.5]) cylinder(d1 = 4.6, d2 = 7, h = 1.51);
+    // pan horn (double arm, along X) on the underside
+    // 3.2 clearance for the horn screw; its head sits on the disc top (no countersink: the 3.6 mm
+    // hub counterbore from below leaves only 1.4 mm of floor)
+    translate([0, 0, disc_z0 + horn_pocket]) horn_channel([[1, 0], [-1, 0]], sv_double_l / 2, hub_relief_d, 3.2, through = 8);
     // tilt servo through arm A: flange on the OUTER face, shaft toward the head (-Y)
     translate([0, arm_a_out + sv_flange_t, axis_z])
       rotate([90, 0, 0]) rotate([0, 0, 90])
@@ -307,8 +328,10 @@ module head() {
     translate([head_x0 - 1, 0, cam_dz]) rotate([0, 90, 0]) cylinder(d = cam_win_d, h = wall + 2);
     // shallow relief so the lens housing can sit proud of the pads if needed
     translate([front_in - 0.6, 0, cam_dz]) rotate([0, 90, 0]) cylinder(d = cam_win_d + 4, h = 1);
-    // horn pocket on the +Y face (recess faces outward, screws from inside)
-    translate([0, head_y1, 0]) rotate([-90, 0, 0]) horn_pocket(through = side_a_t + 1);
+    // tilt horn (single arm, pointing down) on the +Y face; recess faces outward, screws from inside.
+    // rotate([-90,0,0]) maps local +Z -> world +Y and local +Y -> world -Z, so dir [0,1] points down.
+    translate([0, head_y1, 0]) rotate([-90, 0, 0])
+      horn_channel([[0, 1]], max(sv_single_l, head_z / 2 + 2), hub_relief_s, 4.6, through = side_a_t + 1);
     // pivot pilot on the -Y face
     translate([0, head_y0 - pivot_ring_h - 0.01, 0]) rotate([-90, 0, 0]) cylinder(d = m3_pilot, h = pivot_ring_h + 5);
     // USB-C slot through the floor, open to the back
