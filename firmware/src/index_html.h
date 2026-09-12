@@ -78,6 +78,7 @@ h3{margin:12px 0 4px;font-size:13px;color:#888;text-transform:uppercase;letter-s
   <label>JPEG quality <input type="range" data-var="quality" min="10" max="95" step="5" data-key="quality"><span class="v"></span></label>
   <div class="row"><button data-t="hmirror" data-key="hmirror">H-mirror</button><button data-t="vflip" data-key="vflip">V-flip</button></div>
   <div class="row"><button id="save">Save settings</button><button id="defaults">Defaults</button><a href="/capture" target="_blank"><button>Capture</button></a></div>
+  <div class="stat">Save also stores the current mode as the power-up mode (default: Person).</div>
  </div>
 </div>
 <script>

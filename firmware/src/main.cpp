@@ -413,6 +413,14 @@ void setup() {
   buzzerBegin();
   displayBoot("booting", "camera + wifi");
   tracker.begin();           // servos to center, settings from NVS
+  {
+    int m = tracker.settings.bootMode;
+    if (m < 0 || m > 3) m = MODE_FACE;
+#if !HAVE_ESP_DL && !HAVE_ESPDET
+    if (m == MODE_FACE) m = MODE_MANUAL;    // no detector in this build
+#endif
+    tracker.setMode((Mode)m);
+  }
   if (!cameraInit()) {
     // Keep going: manual/scan still work without a camera, web UI shows no stream.
     Serial.println("[turret] camera unavailable");

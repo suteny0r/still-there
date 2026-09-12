@@ -242,10 +242,11 @@ All at the top of `turret.scad`, mm:
 - The USB-C slot in the head floor assumes a right-angle cable that runs backward; a straight plug
   hits the yoke disc when tilting down.
 
-## Branch `espdet-pico`: whole-body person detection
+## Whole-body person detection: env `xiao_espdet` (default build)
 
-`main` is the working build: esp-dl 1.x face acquisition + torso color tracking on arduino-esp32
-2.0.17. This branch swaps the acquisition detector for Espressif's ESPDet-Pico pedestrian model
+Two firmware flavours live side by side. `xiao_esp32s3_sense` / `xiao_expansion` are the original
+esp-dl 1.x face acquisition + torso color tracking on arduino-esp32 2.0.17. `xiao_espdet` (developed
+on the `espdet-pico` branch, now merged) swaps the acquisition detector for Espressif's ESPDet-Pico pedestrian model
 (esp-dl 3.3.11, `espressif/pedestrian_detect` 0.3.2, 224x224 input). A body box does not need a
 frontal face, so masked, turned-away or side-on people are acquired, and the aim point is a fraction
 down the box (`aim down body`, default 0.25) instead of "below the face".
@@ -279,8 +280,9 @@ run under MSYS (`ERROR: MSys/Mingw is not supported`) and the compiler is then n
 Flash use is 3.0 MB of the 3.3 MB app slot. If it grows, switch `board_build.partitions` to
 `max_app_8MB.csv` (drops OTA).
 
-Revert: `git checkout main` and `pio run -e xiao_expansion -t upload --upload-port COM6`. Nothing
-on `main` is touched by this branch, and NVS settings are shared (same keys).
+Falling back to the face build is a reflash: `pio run -e xiao_expansion -t upload --upload-port COM6`.
+NVS settings are shared (same keys). The turret powers up in the mode that was active when settings
+were last saved (default Person).
 
 ## Bring-up notes (2026-09-10, board on the XIAO Expansion Board, no servos)
 

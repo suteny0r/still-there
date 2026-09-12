@@ -36,6 +36,7 @@ struct Settings {
   bool hmirror = false;
   bool vflip = false;
   float panTrim = 0, tiltTrim = 0;
+  int bootMode = 1;          // mode entered at power-up (1 = Person); Save stores the current mode
 };
 
 class Tracker {

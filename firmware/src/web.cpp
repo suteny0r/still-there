@@ -36,7 +36,7 @@ static esp_err_t status_handler(httpd_req_t* req) {
            "\"kp\":%.1f,\"smooth\":%.2f,\"maxStep\":%.1f,\"dead\":%d,\"invPan\":%s,\"invTilt\":%s,"
            "\"settle\":%d,\"lost\":%d,\"scan\":%s,\"scanSpeed\":%.1f,\"scanTilt\":%.1f,\"lockMs\":%d,\"lockRelease\":%.1f,\"aimBelow\":%.2f,\"torso\":%s,\"redetect\":%d,\"torsoConf\":%.2f,\"kind\":%d,\"faceAge\":%d,\"faceTimeout\":%d,\"aimFrac\":%.2f,\"personThr\":%.2f,\"detector\":\"%s\","
            "\"autoFire\":%s,\"mthr\":%d,\"mmin\":%d,\"quality\":%d,\"hmirror\":%s,\"vflip\":%s,"
-           "\"panTrim\":%.1f,\"tiltTrim\":%.1f}",
+           "\"panTrim\":%.1f,\"tiltTrim\":%.1f,\"bootMode\":%d}",
            (int)g_tracker->mode(), g_tracker->pan(), g_tracker->tilt(), g_tracker->panSet(), g_tracker->tiltSet(),
            t.found ? "true" : "false", fresh ? "true" : "false", t.x, t.y, t.w, t.h, t.score,
            g_tracker->locked() ? "true" : "false", g_tracker->scanning() ? "true" : "false",
@@ -56,7 +56,7 @@ static esp_err_t status_handler(httpd_req_t* req) {
            s.aimFrac, s.personThr, HAVE_ESPDET ? "espdet-person" : (HAVE_ESP_DL ? "esp-dl-face" : "none"),
            s.autoFire ? "true" : "false", s.motionThr,
            s.motionMinCells, s.jpegQuality, s.hmirror ? "true" : "false", s.vflip ? "true" : "false",
-           s.panTrim, s.tiltTrim);
+           s.panTrim, s.tiltTrim, s.bootMode);
   httpd_resp_set_type(req, "application/json");
   httpd_resp_set_hdr(req, "Cache-Control", "no-store");
   return httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);

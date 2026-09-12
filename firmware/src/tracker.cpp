@@ -185,6 +185,7 @@ void Tracker::loadSettings() {
   settings.vflip = prefs.getBool("vflip", d.vflip);
   settings.panTrim = prefs.getFloat("pantrim", d.panTrim);
   settings.tiltTrim = prefs.getFloat("tilttrim", d.tiltTrim);
+  settings.bootMode = prefs.getInt("bootmode", d.bootMode);
   bool firstBoot = !prefs.isKey("kp");
   prefs.end();
   if (firstBoot) saveSettings();   // write defaults once so later reads do not log NOT_FOUND
@@ -220,5 +221,7 @@ void Tracker::saveSettings() {
   prefs.putBool("vflip", settings.vflip);
   prefs.putFloat("pantrim", settings.panTrim);
   prefs.putFloat("tilttrim", settings.tiltTrim);
+  settings.bootMode = (int)_mode;            // whatever mode is active when you press Save
+  prefs.putInt("bootmode", settings.bootMode);
   prefs.end();
 }
