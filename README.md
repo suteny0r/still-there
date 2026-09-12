@@ -206,7 +206,7 @@ All at the top of `turret.scad`, mm:
   | | measured | in CAD |
   |---|---|---|
   | body length x width | 22.8 x 12.4 | 23.6 x 12.8 cut + clearance |
-  | ear span | 31.2 / 32.2 | ears rest on the surface, no cut |
+  | ear span (H) | 32.2 | ears rest on the surface, no cut |
   | ear hole spacing | 27.8 / 28.0 | slotted pilots 27.3 to 28.5 |
   | ear top to boss top (K) | 7.3 / 7.5 | 7.4 |
   | hub diameter | 6.8 | 7.4 counterbore |
