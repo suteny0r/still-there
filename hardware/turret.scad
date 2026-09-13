@@ -391,6 +391,8 @@ module head() {
     difference() {
       translate([front_in - 0.01, -cam_sock/2 - 2, cam_dz - cam_sock/2 - 2]) cube([cam_sock_d, cam_sock + 4, cam_sock + 4]);
       translate([front_in - 1, -cam_sock/2, cam_dz - cam_sock/2]) cube([cam_sock_d + 2, cam_sock, cam_sock]);
+      // the flex leaves the back face of the base toward the USB end: no collar wall there behind the base
+      translate([front_in + cam_housing_d, -cam_sock/2 - 3, cam_dz - cam_sock/2 - 3]) cube([cam_sock_d, cam_sock + 6, 3]);
     }
     // XIAO front stops: two pads on the XIAO top face at its USB-end corners (the only exposed
     // XIAO area; the wider camera board covers everything else), beside the USB-C shell
