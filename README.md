@@ -161,6 +161,9 @@ no support), filament `Flashforge PETG Basic @FF C5P`, bed type High Temp Plate 
 PLA one if you print PLA; the layout and process carry over. `turret_creator5pro_plate.png` shows the
 first-layer footprint of each part on the bed. Sliced with these presets: about 3 h 10 min, 73 g of
 PETG, no supports, no slicer warnings. Regenerate after CAD changes with `python make_project.py --slice`.
+For a partial reprint add `--parts=head,head_lid` (any of base, base_lid, yoke, head, head_lid); the
+project is written as `turret_creator5pro_<parts>.3mf`. In Flash Studio you can instead right-click the
+unwanted objects and untick **Printable**, or select them and press Delete.
 
 It was produced with the slicer's CLI (`flash studio.exe --load-settings ... --export-3mf`) after
 flattening the preset inheritance chains; the CLI refuses system profiles that still carry

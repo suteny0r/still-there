@@ -81,6 +81,16 @@ def run(args):
 
 
 def main():
+    # --parts head,head_lid  -> subset project named turret_creator5pro_<parts>.3mf (stock positions kept)
+    global OUT
+    parts = PARTS
+    for a in sys.argv[1:]:
+        if a.startswith("--parts="):
+            parts = [x for x in a.split("=", 1)[1].split(",") if x]
+            bad = [x for x in parts if x not in PARTS]
+            if bad:
+                sys.exit(f"unknown parts {bad}; choose from {PARTS}")
+            OUT = os.path.join(HERE, "turret_creator5pro_" + "_".join(parts) + ".3mf")
     idx = index_presets()
     process = PROCESS
     tmp = tempfile.mkdtemp(prefix="turret3mf_")
@@ -90,7 +100,7 @@ def main():
     write_preset(idx, FILAMENT, "filament", fi)
 
     raw = os.path.join(tmp, "raw.3mf")
-    stls = [os.path.join(STL, p + ".stl") for p in PARTS]
+    stls = [os.path.join(STL, p + ".stl") for p in parts]
     rc, bad, log = run(["--load-settings", f"{m};{pr}", "--load-filaments", fi, "--arrange", "1",
                         "--export-3mf", raw] + stls)
     if rc != 0 or not os.path.exists(raw):
