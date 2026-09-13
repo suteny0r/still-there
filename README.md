@@ -187,11 +187,11 @@ supports are needed. Clearances (`clr`, `lip_clr`, `m2_*`/`m3_*` pilots) are at 
    with the arms square to the camera direction and drive the horn screw down through the disc
    countersink.
 4. Head: lay the **single-arm** horn in the channel on the +Y face, arm pointing down (it may stick
-   out ~3 mm past the bottom edge; trim it if you like) and drive two M2 screws from inside the head. Fit the
-   board stack, camera to the window, USB-C down; press the lid on and drive the two M2 screws
-   through the top wall. Slide the head between the arms, horn onto the spline, then the M3 pivot
-   through arm B into the boss on the -Y face. Center screw for the horn goes through the 4.6 mm
-   hole from inside the head before the board goes in if you want it captive.
+   out ~3.5 mm past the bottom edge; trim it if you like) and drive two M2 screws from inside the head.
+   Fit the board stack USB-C down: seat the camera module in the square socket first (lens through the
+   window), let the XIAO settle onto the two USB-end pads, put a ~3 mm foam pad on the two far-end
+   standoffs so it touches the camera board, then press the lid on (its posts stop 0.2 mm off the XIAO
+   back) and drive the two M2 screws through the top wall.
 5. Antenna (required: the XIAO ESP32S3 has no on-board antenna). Before the board goes in, seat the
    kit's U.FL plug (press one side in first, per Seeed), lead the coax out of the board stack on the
    pivot side into the wall groove, back through the 4 x 8 slot in the lid, and stick the 20 x 40
@@ -229,9 +229,16 @@ All at the top of `turret.scad`, mm:
   continuous M2 screw slot per arm, so hole positions in the horn do not matter. The horn screw on
   the disc sits on top without a countersink. `gap_margin` (0.8) still biases toward the hub seating
   slightly short rather than the head rubbing the arm.
-- `pcb_w`/`pcb_l` 17.5 x 21.0, `stack_h` 11.0 (lens top to XIAO back), `cam_module_h` 5.0,
-  `cam_dz` 2.0. The lens position on the Sense board is approximate; the window is 10 mm and the
-  head interior has 0.8 mm width slack, so measure your board and set `cam_dz` before printing.
+- Board stack (XIAO ESP32S3 **Plus** 17.76 x 21.25 with the camera board, measured 2026-09-13):
+  lens front to XIAO back 13.44, lens front to XIAO top face 12.30, 3.0 mm board-to-board gap,
+  camera board 18 x 15 (wider than the XIAO, flush with its far end), 8 x 8 module housing with a
+  7 mm barrel, lens center 10.8 above the USB edge and on the board centerline. The camera module
+  hangs on a short flex and is **not** fixed to the camera board: the head holds it in an 8.6 mm
+  square socket behind a 7.4 mm window, so the flex pushes it into the socket. The XIAO is located
+  by two pads on its exposed USB-end corners and four lid posts (0.2 mm clearance, no squeeze); two
+  standoffs at the camera board's far-end corners stop 3 mm short so a foam pad steadies that end
+  without loading the connector. `lens_protrude` (2.3, barrel past the housing face) is derived, not
+  measured; the flex absorbs a couple of mm either way.
 - `axis_h` 34: tilt axis above the disc. Raise it if you use a straight USB-C plug in the head.
 - Tilt limits in firmware (`TILT_MIN_DEG`/`TILT_MAX_DEG`, 35..145) keep the head off the yoke;
   pan is 0..180.

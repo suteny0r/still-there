@@ -69,13 +69,34 @@ horn_pocket = sv_horn_t + 0.6;                  // recess depth for the horn arm
 hub_relief_s= horn_pocket + (sv_hub_top_s - sv_horn_h_s) + 0.6;  // head counterbore for the single-arm hub (5.8)
 hub_relief_d= horn_pocket + (sv_hub_top_d - sv_horn_h_d) + 0.6;  // disc counterbore for the double-arm hub (3.6)
 
-// -------------------------------------------- XIAO ESP32S3 Sense board stack
-pcb_w        = 17.5;        // board width  (across the two pin rows)
-pcb_l        = 21.0;        // board length (USB-C on one short edge)
-stack_h      = 11.0;        // camera lens top  ->  XIAO back face
-cam_module_h = 5.0;         // camera lens top  ->  expansion PCB top face
-cam_dz       = 2.0;         // lens center offset from board center toward the antenna end
-cam_win_d    = 10.0;        // front window diameter
+// ----------------------------- XIAO ESP32S3 Plus + camera board stack (MEASURED 2026-09-13)
+// Stack, front to back: lens barrel -> 8 x 8 module housing (on a short flex, folded over the
+// USB end) -> camera board (18 x 15, wider than the XIAO, sits over the far/antenna end) ->
+// 3 mm board-to-board connector gap -> XIAO (17.76 x 21.25). Depths below are from the front
+// wall's inner face, with the module housing seated against it.
+pcb_w        = 17.76;       // XIAO width
+pcb_l        = 21.25;       // XIAO length, USB-C on one short edge (down in the head)
+pcb_t        = 1.14;        // XIAO thickness (13.44 - 12.30)
+usb_protrude = 1.5;         // USB-C shell past the XIAO's bottom edge
+usb_shell_h  = 3.2;         // USB-C receptacle height above the XIAO top face
+cam_pcb_w    = 18.0;        // camera board width (across)
+cam_pcb_l    = 15.0;        // camera board length, flush with the XIAO's far end
+cam_pcb_t    = 1.0;
+b2b_gap      = 3.0;         // PCB-to-PCB gap set by the connector
+cam_housing  = 8.0;         // module housing, square
+cam_barrel   = 7.0;         // lens barrel diameter
+lens_protrude= 2.3;         // barrel front past the housing face (derived, not measured)
+cam_lens_z   = 10.8;        // lens center above the XIAO's USB edge
+lens_to_top  = 12.30;       // lens front -> XIAO top face
+stack_h      = 13.44;       // lens front -> XIAO back face
+cam_dz       = cam_lens_z - pcb_l / 2;             // lens center vs XIAO center (+0.18)
+cam_win_d    = cam_barrel + 0.4;                   // 7.4 window: the housing stops on the wall
+cam_sock     = cam_housing + 0.6;                  // 8.6 square socket for the housing
+cam_sock_d   = 4.0;                                // socket depth behind the front wall
+foam_gap     = 3.0;                                // camera-board standoffs stop this short; fill with foam
+d_xiao_top   = lens_to_top - lens_protrude;        // 10.0  XIAO top face
+d_xiao_back  = d_xiao_top + pcb_t;                 // 11.14 XIAO back face (lid posts stop 0.2 short)
+d_cam_front  = d_xiao_top - b2b_gap - cam_pcb_t;   // 6.0   camera board front face
 // WiFi antenna: the XIAO ESP32S3 has no on-board antenna; the kit's adhesive FPC patch
 // (20 x 40 mm, 75 mm coax from its center to the U.FL between the two PCBs) sticks to a
 // plate on the back of the head lid, cable through a slot at the patch center.
@@ -93,10 +114,10 @@ usb_t        = 7.5;         // USB-C overmold thickness
 
 // --------------------------------------------------------------------- head
 wall      = 2.0;
-head_iy   = pcb_w + 0.8;                    // 18.3 interior width (tilt axis direction)
-head_iz   = pcb_l + 4.0;                    // 25.0 interior height
-head_ix   = stack_h + 9.0;                  // 20.0 interior depth (front inner face -> lid inner face);
-                                            // the 21 mm horn pocket on the side must fit inside the 24 mm head length
+head_iy   = cam_pcb_w + 0.8;                // 18.8 interior width (camera board is the widest part)
+head_iz   = pcb_l + 5.0;                    // 26.25 interior height (USB shell protrudes 1.5 below the PCB)
+head_ix   = 20.0;                           // interior depth: XIAO back at 11.14, coax coil + lid posts behind;
+                                            // the horn channel on the side needs the 24 mm head length
 lid_t     = 2.0;
 lid_lip   = 3.0;                            // lip depth into the shell
 lip_t     = 1.4;
@@ -321,60 +342,68 @@ module head_outer_2d() {
 }
 
 module head() {
-  front_in = head_x0 + wall;                 // front inner face X
-  pcb_face = front_in + cam_module_h;        // expansion PCB rests here
-  difference() {
-    union() {
-      // shell
-      translate([head_x0, 0, 0]) rotate([90, 0, 90]) linear_extrude(wall + head_ix) head_outer_2d();
-      // pivot spacer ring on the -Y face
-      translate([0, head_y0 + 0.01, 0]) rotate([90, 0, 0]) cylinder(d = pivot_ring_d, h = pivot_ring_h);
-      // laser saddle
-      if (laser_mount)
-        translate([-1.5, 0, head_z/2 + 3]) cube([14, 11, 6.5], center = true);
+  front_in = head_x0 + wall;                 // front inner face X (module housing seats here)
+  union() {
+    difference() {
+      union() {
+        // shell
+        translate([head_x0, 0, 0]) rotate([90, 0, 90]) linear_extrude(wall + head_ix) head_outer_2d();
+        // pivot spacer ring on the -Y face
+        translate([0, head_y0 + 0.01, 0]) rotate([90, 0, 0]) cylinder(d = pivot_ring_d, h = pivot_ring_h);
+        // laser saddle
+        if (laser_mount)
+          translate([-1.5, 0, head_z/2 + 3]) cube([14, 11, 6.5], center = true);
+      }
+      // interior cavity, open at the back
+      translate([front_in, -head_iy/2, -head_iz/2]) cube([head_ix + 1, head_iy, head_iz]);
+      // camera window: barrel passes, housing stops on the wall
+      translate([head_x0 - 1, 0, cam_dz]) rotate([0, 90, 0]) cylinder(d = cam_win_d, h = wall + 2);
+      // tilt horn (single arm, pointing down) on the +Y face; recess faces outward, screws from inside.
+      // rotate([-90,0,0]) maps local +Z -> world +Y and local +Y -> world -Z, so dir [0,1] points down.
+      translate([0, head_y1, 0]) rotate([-90, 0, 0])
+        horn_channel([[0, 1]], max(sv_single_l, head_z / 2 + 2), hub_relief_s, 4.6, through = side_a_t + 1);
+      // pivot pilot on the -Y face
+      translate([0, head_y0 - pivot_ring_h - 0.01, 0]) rotate([-90, 0, 0]) cylinder(d = m3_pilot, h = pivot_ring_h + 5);
+      // USB-C slot through the floor, open to the back: the receptacle sits on the XIAO top face
+      if (usb_slot)
+        translate([front_in + d_xiao_top - usb_shell_h - 2.5, -usb_w/2, -head_z/2 - 1])
+          cube([head_ix, usb_w, wall + 2]);
+      // lid screw pilots through the top wall
+      for (y = [-7, 7]) translate([head_x1 - 1.5, y, head_z/2 - wall - 1]) cylinder(d = m2_pilot, h = wall + 8);
+      // laser bore + set screw
+      if (laser_mount) {
+        translate([-1.5, 0, head_z/2 + 3.2]) cyl_x(laser_d, 20);
+        translate([-1.5, 0, head_z/2 + 3]) cylinder(d = m2_pilot, h = 6);
+      }
+      // coax groove in one side wall (coax_side), from behind the camera board to the back opening,
+      // at the far (antenna) end where the U.FL sits between the two boards
+      translate([front_in + d_cam_front + cam_pcb_t + 0.5,
+                 coax_side * (head_iy / 2) - (coax_side > 0 ? 0.01 : coax_groove - 0.01), pcb_l/2 - 6])
+        cube([head_ix, coax_groove, 4]);
+      // vent / mic slots on the -Y wall, low
+      for (x = [-3, 0, 3]) translate([x, head_y0 - 1, -head_iz/2 + 4]) cube([1.6, side_b_t + 2, 6]);
     }
-    // interior cavity, open at the back
-    translate([front_in, -head_iy/2, -head_iz/2]) cube([head_ix + 1, head_iy, head_iz]);
-    // camera window
-    translate([head_x0 - 1, 0, cam_dz]) rotate([0, 90, 0]) cylinder(d = cam_win_d, h = wall + 2);
-    // shallow relief so the lens housing can sit proud of the pads if needed
-    translate([front_in - 0.6, 0, cam_dz]) rotate([0, 90, 0]) cylinder(d = cam_win_d + 4, h = 1);
-    // tilt horn (single arm, pointing down) on the +Y face; recess faces outward, screws from inside.
-    // rotate([-90,0,0]) maps local +Z -> world +Y and local +Y -> world -Z, so dir [0,1] points down.
-    translate([0, head_y1, 0]) rotate([-90, 0, 0])
-      horn_channel([[0, 1]], max(sv_single_l, head_z / 2 + 2), hub_relief_s, 4.6, through = side_a_t + 1);
-    // pivot pilot on the -Y face
-    translate([0, head_y0 - pivot_ring_h - 0.01, 0]) rotate([-90, 0, 0]) cylinder(d = m3_pilot, h = pivot_ring_h + 5);
-    // USB-C slot through the floor, open to the back
-    if (usb_slot)
-      translate([pcb_face + stack_h - cam_module_h - 1.0 - usb_t + 1.5, -usb_w/2, -head_z/2 - 1])
-        cube([usb_t + 10, usb_w, wall + 2]);
-    // lid screw pilots through the top wall
-    for (y = [-7, 7]) translate([head_x1 - 1.5, y, head_z/2 - wall - 1]) cylinder(d = m2_pilot, h = wall + 8);
-    // laser bore + set screw
-    if (laser_mount) {
-      translate([-1.5, 0, head_z/2 + 3.2]) cyl_x(laser_d, 20);
-      translate([-1.5, 0, head_z/2 + 3]) cylinder(d = m2_pilot, h = 6);
+    // camera module socket: collar behind the front wall with a square pocket for the housing.
+    // The flex pushes the module into it; nothing presses on the camera board or the connector.
+    difference() {
+      translate([front_in - 0.01, -cam_sock/2 - 2, cam_dz - cam_sock/2 - 2]) cube([cam_sock_d, cam_sock + 4, cam_sock + 4]);
+      translate([front_in - 1, -cam_sock/2, cam_dz - cam_sock/2]) cube([cam_sock_d + 2, cam_sock, cam_sock]);
     }
-    // coax groove in one side wall (coax_side), from behind the expansion PCB to the back
-    // opening, z -9..-5: the U.FL sits toward the USB end of the XIAO. Kept off the horn wall so
-    // it cannot cross the horn screw slot.
-    translate([front_in + cam_module_h + 0.5,
-               coax_side * (head_iy / 2) - (coax_side > 0 ? 0.01 : coax_groove - 0.01), -9])
-      cube([head_ix, coax_groove, 4]);
-    // vent / mic slots on the -Y wall, low
-    for (x = [-3, 0, 3]) translate([x, head_y0 - 1, -head_iz/2 + 4]) cube([1.6, side_b_t + 2, 6]);
+    // XIAO front stops: two pads on the XIAO top face at its USB-end corners (the only exposed
+    // XIAO area; the wider camera board covers everything else), beside the USB-C shell
+    for (sy = [-1, 1])
+      translate([front_in - 0.01, sy * (pcb_w/2 - 1.5) - 1.5, -pcb_l/2 + 0.5]) cube([d_xiao_top + 0.01, 3, 3]);
+    // camera-board standoffs at its far-end corners, stopping foam_gap short of the board:
+    // a foam pad fills the gap and steadies the far end without a rigid load on the connector
+    for (sy = [-1, 1])
+      translate([front_in - 0.01, sy * (cam_pcb_w/2 - 1.5) - 1.5, pcb_l/2 - 3.5]) cube([d_cam_front - foam_gap + 0.01, 3, 3]);
   }
-  // board seat: 4 corner pads the expansion PCB rests on (front side)
-  for (sy = [-1, 1], sz = [-1, 1])
-    translate([front_in, sy*(head_iy/2 - 1.0), sz*(head_iz/2 - 1.0)])
-      translate([0, -1, -1]) cube([cam_module_h, 2, 2]);
 }
 
 module head_lid() {
   front_in = head_x0 + wall;
-  pcb_back = front_in + stack_h;             // XIAO back face
-  post_len = head_x1 - pcb_back - 0.3;       // posts press the XIAO corners
+  pcb_back = front_in + d_xiao_back;         // XIAO back face
+  post_len = head_x1 - pcb_back - 0.2;       // posts locate the XIAO corners, no squeeze
   difference() {
     union() {
       // plate
@@ -391,9 +420,9 @@ module head_lid() {
       // screw bosses inside the lip, top wall
       for (y = [-7, 7])
         translate([head_x1 - lid_lip, y - 3, head_iz/2 - lip_clr - 4]) cube([lid_lip + 0.01, 6, 4]);
-      // corner posts
+      // corner posts to the XIAO back face
       for (sy = [-1, 1], sz = [-1, 1])
-        translate([pcb_back + 0.3, sy*(pcb_w/2 - 1.5) - 1.5, sz*(pcb_l/2 - 1.5) - 1.5]) cube([post_len + 0.01, 3, 3]);
+        translate([pcb_back + 0.2, sy*(pcb_w/2 - 1.5) - 1.5, sz*(pcb_l/2 - 1.5) - 1.5]) cube([post_len + 0.01, 3, 3]);
     }
     // screw pilots
     for (y = [-7, 7]) translate([head_x1 - 1.5, y, head_iz/2 - 6]) cylinder(d = m2_pilot, h = 10);
@@ -414,11 +443,14 @@ module head_lid() {
 module xiao_mock() {
   front_in = head_x0 + wall;
   color("green") {
-    translate([front_in + cam_module_h, -pcb_w/2, -pcb_l/2]) cube([1.0, pcb_w, pcb_l]);          // expansion pcb
-    translate([front_in + stack_h - 1.0, -pcb_w/2, -pcb_l/2]) cube([1.0, pcb_w, pcb_l]);         // XIAO pcb
+    translate([front_in + d_cam_front, -cam_pcb_w/2, pcb_l/2 - cam_pcb_l]) cube([cam_pcb_t, cam_pcb_w, cam_pcb_l]);  // camera board
+    translate([front_in + d_xiao_top, -pcb_w/2, -pcb_l/2]) cube([pcb_t, pcb_w, pcb_l]);                          // XIAO
   }
-  color("black") translate([front_in + 0.5, 0, cam_dz]) rotate([0, 90, 0]) cylinder(d = 8, h = cam_module_h - 0.5);
-  color("silver") translate([front_in + stack_h - 1.0 - 3.2, -4.5, -pcb_l/2 - 1]) cube([3.2, 9, 7]);  // USB-C receptacle
+  color("black") {
+    translate([front_in, -cam_housing/2, cam_dz - cam_housing/2]) cube([5, cam_housing, cam_housing]);            // module housing
+    translate([front_in - lens_protrude, 0, cam_dz]) rotate([0, 90, 0]) cylinder(d = cam_barrel, h = lens_protrude + 0.1);
+  }
+  color("silver") translate([front_in + d_xiao_top - usb_shell_h, -4.5, -pcb_l/2 - usb_protrude]) cube([usb_shell_h, 9, 7]);  // USB-C
 }
 
 module assembly() {
