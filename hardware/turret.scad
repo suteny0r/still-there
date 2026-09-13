@@ -105,7 +105,9 @@ d_cam_front  = d_xiao_top - b2b_gap - cam_pcb_t;   // 4.93  camera board front f
 ant_w        = 20.0;        // patch size
 ant_l        = 40.0;
 ant_plate_t  = 2.0;
-ant_plate_dz = 4.0;         // plate center above the tilt axis (keeps the low edge off the disc)
+ant_plate_dz = -8.0;        // plate center below the tilt axis: the plate (42 tall on a 30 mm head) hangs
+                            // below the head, keeping the top clear for the laser. Low corner at -29 stays
+                            // 6 mm above the yoke disc at full 55 deg tilt.
 ant_slot     = [4.0, 8.0];  // coax pass-through at the patch center (y, z)
 coax_groove  = 1.6;         // wall groove for the 1.1 mm coax between the board stack and the back
 coax_side    = -1;          // -1: pivot-side (-Y) wall. CONFIRMED on the printed head: with the lens toward
@@ -215,15 +217,29 @@ module servo_cut(z0 = -30, z1 = 30, pilot_z0 = -12, pilot_z1 = 30) {
 // a center hole passes the horn screw, and one continuous slot per arm takes M2 screws through
 // the wall into any of the arm's holes. dirs: list of unit directions (in the face plane) the
 // arm(s) point; len: hub center -> tip for each direction.
-module horn_channel(dirs, len, relief, center_d, through = 8) {
+// roof: local 2D direction that points "up" on the printer when this face prints vertically
+// (the head's channel). The recess edge on that side slopes 45 deg to the surface and the hub
+// counterbore gets a teardrop apex, so nothing overhangs flat and no support is needed inside.
+// [0, 0] (the disc, printed face-down) keeps plain vertical walls.
+module horn_channel(dirs, len, relief, center_d, through = 8, roof = [0, 0]) {
   w = sv_arm_w + 1.0;
+  hub = sv_hub_d + 0.6;
   // arm channel(s)
   for (d = dirs) hull() {
     translate([0, 0, -horn_pocket]) cylinder(d = w, h = horn_pocket + 0.01);
     translate([d[0] * (len + 1.0), d[1] * (len + 1.0), -horn_pocket]) cylinder(d = w, h = horn_pocket + 0.01);
+    if (roof != [0, 0]) {
+      translate([roof[0] * horn_pocket, roof[1] * horn_pocket, -0.01]) cylinder(d = w, h = 0.02);
+      translate([d[0] * (len + 1.0) + roof[0] * horn_pocket, d[1] * (len + 1.0) + roof[1] * horn_pocket, -0.01])
+        cylinder(d = w, h = 0.02);
+    }
   }
-  // hub counterbore + center screw
-  translate([0, 0, -relief]) cylinder(d = sv_hub_d + 0.6, h = relief + 0.01);
+  // hub counterbore (teardrop when roofed) + center screw
+  hull() {
+    translate([0, 0, -relief]) cylinder(d = hub, h = relief + 0.01);
+    if (roof != [0, 0])
+      translate([roof[0] * hub / 2 * sqrt(2), roof[1] * hub / 2 * sqrt(2), -relief]) cylinder(d = 0.01, h = relief + 0.01);
+  }
   translate([0, 0, -through]) cylinder(d = center_d, h = 2 * through);
   // screw slot per arm: from just outside the hub to near the tip
   for (d = dirs) hull() {
@@ -364,7 +380,8 @@ module head() {
       // tilt horn (single arm, pointing down) on the +Y face; recess faces outward, screws from inside.
       // rotate([-90,0,0]) maps local +Z -> world +Y and local +Y -> world -Z, so dir [0,1] points down.
       translate([0, head_y1, 0]) rotate([-90, 0, 0])
-        horn_channel([[0, 1]], max(sv_single_l, head_z / 2 + 2), hub_relief_s, 4.6, through = side_a_t + 1);
+        horn_channel([[0, 1]], max(sv_single_l, head_z / 2 + 2), hub_relief_s, 4.6, through = side_a_t + 1,
+                     roof = [1, 0]);   // head prints front-face down: world +X (local +X) is up
       // pivot pilot on the -Y face
       translate([0, head_y0 - pivot_ring_h - 0.01, 0]) rotate([-90, 0, 0]) cylinder(d = m3_pilot, h = pivot_ring_h + 5);
       // USB-C slot through the floor, open to the back: the receptacle sits on the XIAO top face
@@ -377,6 +394,8 @@ module head() {
       if (laser_mount) {
         translate([-1.5, 0, head_z/2 + 3.2]) cyl_x(laser_d, 20);
         translate([-1.5, 0, head_z/2 + 3]) cylinder(d = m2_pilot, h = 6);
+        // lead drop: the laser leads fall through the top wall into the cavity behind the module
+        translate([0, -2, head_z/2 - wall - 1]) cube([9, 4, wall + 4]);
       }
       // coax groove in one side wall (coax_side), from behind the camera board to the back opening,
       // at the far (antenna) end where the U.FL sits between the two boards
@@ -419,7 +438,7 @@ module head_lid() {
           square([head_iy - 2*lip_clr, head_iz - 2*lip_clr], center = true);
           square([head_iy - 2*lip_clr - 2*lip_t, head_iz - 2*lip_clr - 2*lip_t], center = true);
         }
-      // antenna plate on the outer face: 22 x 42, centered on the lid, biased up by ant_plate_dz
+      // antenna plate on the outer face: 22 x 42, centered on the lid, offset by ant_plate_dz
       translate([head_x1 + lid_t, (head_y0 + head_y1) / 2 - (ant_w + 2) / 2, ant_plate_dz - (ant_l + 2) / 2])
         cube([ant_plate_t, ant_w + 2, ant_l + 2]);
       // screw bosses inside the lip, top wall
@@ -434,8 +453,6 @@ module head_lid() {
     // coax slot at the patch center, through plate and lid
     translate([head_x1 - 1, (head_y0 + head_y1) / 2 - ant_slot[0] / 2, ant_plate_dz - ant_slot[1] / 2])
       cube([lid_t + ant_plate_t + 2, ant_slot[0], ant_slot[1]]);
-    // wire grommet hole for soldered power leads
-    translate([head_x1 - 1, 0, -6]) rotate([0, 90, 0]) cylinder(d = 5, h = lid_t + 2);
     // notch completing the USB slot
     if (usb_slot)
       translate([head_x1 - lid_lip - 1, -usb_w/2, -head_z/2 - 1]) cube([lid_lip + lid_t + 2, usb_w, wall + lip_t + 1]);
