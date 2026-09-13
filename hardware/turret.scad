@@ -11,7 +11,7 @@
 //    assembly   everything in place with mock servos / board, for preview
 //    plate      all printable parts laid out flat
 //
-//  Coordinate convention (assembly): Z up, camera looks along +X.
+//  Coordinate convention (assembly): Z up, camera window on the -X face (camera looks along -X).
 //  Every part module is authored in assembly position; print_* transforms
 //  reorient for the bed. Dimensions in mm.
 // =============================================================================
@@ -106,8 +106,9 @@ ant_plate_t  = 2.0;
 ant_plate_dz = 4.0;         // plate center above the tilt axis (keeps the low edge off the disc)
 ant_slot     = [4.0, 8.0];  // coax pass-through at the patch center (y, z)
 coax_groove  = 1.6;         // wall groove for the 1.1 mm coax between the board stack and the back
-coax_side    = -1;          // -1: groove in the pivot-side wall (U.FL is at the XIAO's lower left with
-                            // the camera facing you and USB down); +1 if your board sits mirrored
+coax_side    = -1;          // -1: pivot-side (-Y) wall. CONFIRMED on the printed head: with the lens toward
+                            // you and USB down the U.FL is at the top right, which is the side opposite the
+                            // horn channel. +1 mirrors it to the horn wall (groove stays above the axis).
 usb_slot     = true;        // opening in the head floor for a (right-angle) USB-C plug
 usb_w        = 13.5;        // USB-C overmold width
 usb_t        = 7.5;         // USB-C overmold thickness
