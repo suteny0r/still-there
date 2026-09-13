@@ -43,7 +43,7 @@ void displayBegin() {
   // the panel needs ~100 ms after power before it answers; try for 1.5 s
   for (int i = 0; i < 15 && !oledPresent(); i++) delay(100);
   s_ok = oledPresent();
-  Serial.printf("[turret] OLED at 0x3C: %s\n", s_ok ? "found" : "not found (will keep trying)");
+  Serial.printf("[turret] OLED at 0x3C: %s\n", s_ok ? "found" : "not found (retrying for 30 s, then off)");
   s_lastProbe = millis();
   if (s_ok) oledInit();
 }
