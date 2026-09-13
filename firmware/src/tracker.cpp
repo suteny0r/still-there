@@ -188,10 +188,10 @@ void Tracker::loadSettings() {
   settings.bootMode = prefs.getInt("bootmode", d.bootMode);
   bool firstBoot = !prefs.isKey("kp");
   prefs.end();
-  if (firstBoot) saveSettings();   // write defaults once so later reads do not log NOT_FOUND
+  if (firstBoot) saveSettings(false);   // write defaults once; keep bootMode = Person, not the not-yet-set mode
 }
 
-void Tracker::saveSettings() {
+void Tracker::saveSettings(bool storeCurrentMode) {
   prefs.begin("turret", false);
   prefs.putFloat("kp", settings.kp);
   prefs.putFloat("smooth", settings.smooth);
@@ -221,7 +221,7 @@ void Tracker::saveSettings() {
   prefs.putBool("vflip", settings.vflip);
   prefs.putFloat("pantrim", settings.panTrim);
   prefs.putFloat("tilttrim", settings.tiltTrim);
-  settings.bootMode = (int)_mode;            // whatever mode is active when you press Save
+  if (storeCurrentMode) settings.bootMode = (int)_mode;   // whatever mode is active when you press Save
   prefs.putInt("bootmode", settings.bootMode);
   prefs.end();
 }

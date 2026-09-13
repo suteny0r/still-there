@@ -76,7 +76,7 @@ class Tracker {
 
   Settings settings;
   void loadSettings();
-  void saveSettings();
+  void saveSettings(bool storeCurrentMode = true);   // false: keep bootMode as loaded (first-boot defaults)
 
  private:
   void applyLaser();

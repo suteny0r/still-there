@@ -48,12 +48,13 @@ void displayBegin() {
   if (s_ok) oledInit();
 }
 
-// Call periodically (from displayUpdate): re-probe a missing panel every 2 s, and re-send the
-// init sequence every 15 s so a panel reset by a supply dip comes back without a reboot.
+// Call periodically (from displayUpdate): re-probe a missing panel every 2 s for the first 30 s
+// after boot (covers a panel that powers up late), then give up; re-send the init sequence to a
+// present panel every 15 s so one reset by a supply dip comes back without a reboot.
 static void displayMaintain() {
   uint32_t now = millis();
   if (!s_ok) {
-    if (now - s_lastProbe > 2000) {
+    if (now < 30000 && now - s_lastProbe > 2000) {
       s_lastProbe = now;
       if (oledPresent()) {
         Serial.println("[turret] OLED came up");
