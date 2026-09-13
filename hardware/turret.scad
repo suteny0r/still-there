@@ -83,20 +83,22 @@ cam_pcb_w    = 18.0;        // camera board width (across)
 cam_pcb_l    = 15.0;        // camera board length, flush with the XIAO's far end
 cam_pcb_t    = 1.0;
 b2b_gap      = 3.0;         // PCB-to-PCB gap set by the connector
-cam_housing  = 8.0;         // module housing, square
+cam_housing  = 8.0;         // module housing (lens base), square
+cam_housing_d= 2.0;         // MEASURED: lens base thickness
 cam_barrel   = 7.0;         // lens barrel diameter
-lens_protrude= 2.3;         // barrel front past the housing face (derived, not measured)
+lens_front   = 5.37;        // MEASURED: back of lens base -> front of lens
+lens_protrude= lens_front - cam_housing_d;         // 3.37 barrel past the base face
 cam_lens_z   = 10.8;        // lens center above the XIAO's USB edge
 lens_to_top  = 12.30;       // lens front -> XIAO top face
 stack_h      = 13.44;       // lens front -> XIAO back face
 cam_dz       = cam_lens_z - pcb_l / 2;             // lens center vs XIAO center (+0.18)
 cam_win_d    = cam_barrel + 0.4;                   // 7.4 window: the housing stops on the wall
 cam_sock     = cam_housing + 0.6;                  // 8.6 square socket for the housing
-cam_sock_d   = 4.0;                                // socket depth behind the front wall
+cam_sock_d   = cam_housing_d + 1.0;                // 3.0 socket depth: base + 1 mm of flex fold
 foam_gap     = 3.0;                                // camera-board standoffs stop this short; fill with foam
-d_xiao_top   = lens_to_top - lens_protrude;        // 10.0  XIAO top face
-d_xiao_back  = d_xiao_top + pcb_t;                 // 11.14 XIAO back face (lid posts stop 0.2 short)
-d_cam_front  = d_xiao_top - b2b_gap - cam_pcb_t;   // 6.0   camera board front face
+d_xiao_top   = lens_to_top - lens_protrude;        // 8.93  XIAO top face
+d_xiao_back  = d_xiao_top + pcb_t;                 // 10.07 XIAO back face (lid posts stop 0.2 short)
+d_cam_front  = d_xiao_top - b2b_gap - cam_pcb_t;   // 4.93  camera board front face
 // WiFi antenna: the XIAO ESP32S3 has no on-board antenna; the kit's adhesive FPC patch
 // (20 x 40 mm, 75 mm coax from its center to the U.FL between the two PCBs) sticks to a
 // plate on the back of the head lid, cable through a slot at the patch center.
@@ -448,7 +450,7 @@ module xiao_mock() {
     translate([front_in + d_xiao_top, -pcb_w/2, -pcb_l/2]) cube([pcb_t, pcb_w, pcb_l]);                          // XIAO
   }
   color("black") {
-    translate([front_in, -cam_housing/2, cam_dz - cam_housing/2]) cube([5, cam_housing, cam_housing]);            // module housing
+    translate([front_in, -cam_housing/2, cam_dz - cam_housing/2]) cube([cam_housing_d, cam_housing, cam_housing]); // lens base
     translate([front_in - lens_protrude, 0, cam_dz]) rotate([0, 90, 0]) cylinder(d = cam_barrel, h = lens_protrude + 0.1);
   }
   color("silver") translate([front_in + d_xiao_top - usb_shell_h, -4.5, -pcb_l/2 - usb_protrude]) cube([usb_shell_h, 9, 7]);  // USB-C
