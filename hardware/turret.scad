@@ -76,6 +76,17 @@ stack_h      = 11.0;        // camera lens top  ->  XIAO back face
 cam_module_h = 5.0;         // camera lens top  ->  expansion PCB top face
 cam_dz       = 2.0;         // lens center offset from board center toward the antenna end
 cam_win_d    = 10.0;        // front window diameter
+// WiFi antenna: the XIAO ESP32S3 has no on-board antenna; the kit's adhesive FPC patch
+// (20 x 40 mm, 75 mm coax from its center to the U.FL between the two PCBs) sticks to a
+// plate on the back of the head lid, cable through a slot at the patch center.
+ant_w        = 20.0;        // patch size
+ant_l        = 40.0;
+ant_plate_t  = 2.0;
+ant_plate_dz = 4.0;         // plate center above the tilt axis (keeps the low edge off the disc)
+ant_slot     = [4.0, 8.0];  // coax pass-through at the patch center (y, z)
+coax_groove  = 1.6;         // wall groove for the 1.1 mm coax between the board stack and the back
+coax_side    = -1;          // -1: groove in the pivot-side wall (U.FL is at the XIAO's lower left with
+                            // the camera facing you and USB down); +1 if your board sits mirrored
 usb_slot     = true;        // opening in the head floor for a (right-angle) USB-C plug
 usb_w        = 13.5;        // USB-C overmold width
 usb_t        = 7.5;         // USB-C overmold thickness
@@ -345,6 +356,12 @@ module head() {
       translate([-1.5, 0, head_z/2 + 3.2]) cyl_x(laser_d, 20);
       translate([-1.5, 0, head_z/2 + 3]) cylinder(d = m2_pilot, h = 6);
     }
+    // coax groove in one side wall (coax_side), from behind the expansion PCB to the back
+    // opening, z -9..-5: the U.FL sits toward the USB end of the XIAO. Kept off the horn wall so
+    // it cannot cross the horn screw slot.
+    translate([front_in + cam_module_h + 0.5,
+               coax_side * (head_iy / 2) - (coax_side > 0 ? 0.01 : coax_groove - 0.01), -9])
+      cube([head_ix, coax_groove, 4]);
     // vent / mic slots on the -Y wall, low
     for (x = [-3, 0, 3]) translate([x, head_y0 - 1, -head_iz/2 + 4]) cube([1.6, side_b_t + 2, 6]);
   }
@@ -368,6 +385,9 @@ module head_lid() {
           square([head_iy - 2*lip_clr, head_iz - 2*lip_clr], center = true);
           square([head_iy - 2*lip_clr - 2*lip_t, head_iz - 2*lip_clr - 2*lip_t], center = true);
         }
+      // antenna plate on the outer face: 22 x 42, centered on the lid, biased up by ant_plate_dz
+      translate([head_x1 + lid_t, (head_y0 + head_y1) / 2 - (ant_w + 2) / 2, ant_plate_dz - (ant_l + 2) / 2])
+        cube([ant_plate_t, ant_w + 2, ant_l + 2]);
       // screw bosses inside the lip, top wall
       for (y = [-7, 7])
         translate([head_x1 - lid_lip, y - 3, head_iz/2 - lip_clr - 4]) cube([lid_lip + 0.01, 6, 4]);
@@ -377,6 +397,9 @@ module head_lid() {
     }
     // screw pilots
     for (y = [-7, 7]) translate([head_x1 - 1.5, y, head_iz/2 - 6]) cylinder(d = m2_pilot, h = 10);
+    // coax slot at the patch center, through plate and lid
+    translate([head_x1 - 1, (head_y0 + head_y1) / 2 - ant_slot[0] / 2, ant_plate_dz - ant_slot[1] / 2])
+      cube([lid_t + ant_plate_t + 2, ant_slot[0], ant_slot[1]]);
     // wire grommet hole for soldered power leads
     translate([head_x1 - 1, 0, -6]) rotate([0, 90, 0]) cylinder(d = 5, h = lid_t + 2);
     // notch completing the USB slot
@@ -418,7 +441,7 @@ module print_base()     { translate([0, 0, base_h]) mirror([0, 0, 1]) base(); } 
 module print_base_lid() { base_lid(); }
 module print_yoke()     { translate([0, 0, -disc_z0]) yoke(); }
 module print_head()     { translate([0, 0, -head_x0]) rotate([0, -90, 0]) head(); }          // front face on the bed
-module print_head_lid() { translate([0, 0, head_x1 + lid_t]) rotate([0, 90, 0]) head_lid(); } // outer face on the bed
+module print_head_lid() { translate([0, 0, head_x1 + lid_t + ant_plate_t]) rotate([0, 90, 0]) head_lid(); } // antenna plate on the bed
 
 if (part == "base")          print_base();
 else if (part == "base_lid") print_base_lid();
