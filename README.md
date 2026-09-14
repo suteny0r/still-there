@@ -137,7 +137,7 @@ toggle "Invert pan" or "Invert tilt". Pan/tilt trim offsets the mechanical cente
 | `base_lid` | flat | 4x M2 into wall bosses, rubber-foot recesses, vent grid |
 | `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and a zip-tie slot near each edge for the harness; arm B has the M3 pivot with a countersink |
 | `head` | front face on the bed | camera module socket behind a 7.4 mm window, two hard standoffs to the camera board's far-end corners (nothing touches the XIAO's USB end: reset/boot buttons live there), lid posts behind the XIAO; 1.6 mm coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
-| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, 22 x 42 mm plate for the WiFi patch antenna rising above the head behind the laser saddle (below the head it would seal the USB notch) with a 4 x 8 coax slot at its center |
+| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, outer face doubled to 4 mm over the whole lid and extended 15 mm above the head as a 2 mm fin for the 20 x 40 WiFi patch antenna (one flat face, prints on the bed), 4 x 8 coax slot at the patch center |
 
 Render everything:
 

@@ -455,9 +455,13 @@ module head_lid() {
           square([head_iy - 2*lip_clr, head_iz - 2*lip_clr], center = true);
           square([head_iy - 2*lip_clr - 2*lip_t, head_iz - 2*lip_clr - 2*lip_t], center = true);
         }
-      // antenna plate on the outer face: 22 x 42, centered on the lid, offset by ant_plate_dz
-      translate([head_x1 + lid_t, (head_y0 + head_y1) / 2 - (ant_w + 2) / 2, ant_plate_dz - (ant_l + 2) / 2])
-        cube([ant_plate_t, ant_w + 2, ant_l + 2]);
+      // antenna plate on the outer face: the lid outline plus the 22 x 42 patch area (offset by
+      // ant_plate_dz), so the whole outer face is one flat surface that prints on the bed with no
+      // overhang. The lid is lid_t + ant_plate_t thick; only the fin above the head is ant_plate_t.
+      translate([head_x1 + lid_t, 0, 0]) rotate([90, 0, 90]) linear_extrude(ant_plate_t) union() {
+        head_outer_2d();
+        translate([(head_y0 + head_y1) / 2, ant_plate_dz]) square([ant_w + 2, ant_l + 2], center = true);
+      }
       // screw bosses inside the lip, top wall
       for (y = [-7, 7])
         translate([head_x1 - lid_lip, y > 0 ? y - 3 : -(head_iy/2 - lip_clr), head_iz/2 - lip_clr - 4])
@@ -475,7 +479,7 @@ module head_lid() {
       cube([lid_t + ant_plate_t + 2, ant_slot[0], ant_slot[1]]);
     // notch completing the USB slot
     if (usb_slot)
-      translate([head_x1 - lid_lip - 1, -usb_w/2, -head_z/2 - 1]) cube([lid_lip + lid_t + 2, usb_w, wall + lip_t + 1.5]);
+      translate([head_x1 - lid_lip - 1, -usb_w/2, -head_z/2 - 1]) cube([lid_lip + lid_t + ant_plate_t + 2, usb_w, wall + lip_t + 1.5]);
   }
 }
 
