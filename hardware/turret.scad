@@ -461,9 +461,11 @@ module head_lid() {
       // screw bosses inside the lip, top wall
       for (y = [-7, 7])
         translate([head_x1 - lid_lip, y - 3, head_iz/2 - lip_clr - 4]) cube([lid_lip + 0.01, 6, 4]);
-      // corner posts to the XIAO back face
+      // posts to the XIAO back face: far-end corners (unused D6/D7 pads) and, at the USB end,
+      // inboard at Y +-3.5 flanking the flat BAT pads, clear of the soldered D0/D1/5V/GND pads
       for (sy = [-1, 1], sz = [-1, 1])
-        translate([pcb_back + 0.2, sy*(pcb_w/2 - 1.5) - 1.5, sz*(pcb_l/2 - 1.5) - 1.5]) cube([post_len + 0.01, 3, 3]);
+        translate([pcb_back + 0.2, sy*(sz > 0 ? pcb_w/2 - 1.5 : 3.5) - 1.5, sz*(pcb_l/2 - 1.5) - 1.5])
+          cube([post_len + 0.01, 3, 3]);
     }
     // screw pilots
     for (y = [-7, 7]) translate([head_x1 - 1.5, y, head_iz/2 - 6]) cylinder(d = m2_pilot, h = 10);
