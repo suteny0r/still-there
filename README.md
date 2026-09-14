@@ -47,10 +47,9 @@ LED/SD-CS (GPIO 21) are used by the Sense board; D0-D3 are free.
 | 5V | | servo + laser power (USB 5 V passthrough) |
 | GND | | common ground |
 
-Power the servos from the 5 V pin only if the supply into USB-C can source 2 A. For anything
-more than bench testing, feed 5 V into the base and run a wire pair up to the head (the head lid has
-a 5 mm grommet hole; solder to the 5V/GND pads on the XIAO). The XIAO's own USB-C then stays free
-for flashing.
+Power the servos from the 5 V pin only for bench tests with a supply into USB-C that can source
+2 A. For anything more, feed 5 V into the base and run the riser harness up to the head (see
+Wiring under Enclosure). The XIAO's own USB-C then stays free for flashing.
 
 ## Firmware
 
@@ -134,11 +133,11 @@ toggle "Invert pan" or "Invert tilt". Pan/tilt trim offsets the mechanical cente
 
 | Part | Print orientation | Notes |
 |------|-------------------|-------|
-| `base` | top plate on the bed | pan servo drops through the plate, flange screws down into two bosses; 12 mm cable hole, rim notch for a panel-mount USB-C/DC breakout (slides in from below, the lid closes it), vent slots |
+| `base` | top plate on the bed | pan servo goes in from below, body up through the plate cut, flange clamped against the two bosses with M2 screws driven up into the pilots; 6 mm harness hole outside the disc, rim notch for a panel-mount USB-C/DC breakout (slides in from below, the lid closes it), vent slots |
 | `base_lid` | flat | 4x M2 into wall bosses, rubber-foot recesses, vent grid |
-| `yoke` | disc on the bed | pan horn pocket underneath with 4 radial M2 slots; arm A carries the tilt servo (body outside, flange on the outer face), arm B has the M3 pivot with a countersink |
-| `head` | front face on the bed | 1.6 mm coax groove in the pivot-side wall (U.FL to back opening); 24 mm deep so the 21 mm horn pocket fits inside the side face; XIAO + Sense clamped between four front pads and four lid posts; camera window, horn pocket on +Y, M3 pivot boss on -Y, USB-C slot in the floor, 6 mm laser saddle on top, vent slots |
-| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, 5 mm wire grommet, USB notch, 22 x 42 mm plate for the WiFi patch antenna with a 4 x 8 coax slot at its center |
+| `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and two zip-tie slots for the harness; arm B has the M3 pivot with a countersink |
+| `head` | front face on the bed | camera module socket behind a 7.4 mm window, two XIAO pads at the USB end, two camera-board standoffs (3 mm foam gap) at the far end, lid posts behind the XIAO; 1.6 mm coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
+| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, 22 x 42 mm plate for the WiFi patch antenna hanging below the head (clear of the laser) with a 4 x 8 coax slot at its center |
 
 Render everything:
 
@@ -178,17 +177,33 @@ out loose. Either way the stock 0.20 mm Flashforge profile is the right starting
 perimeters fill every thin section of these parts solid, so infill settings barely matter, and no
 supports are needed. Clearances (`clr`, `lip_clr`, `m2_*`/`m3_*` pilots) are at the top of `turret.scad`.
 
+### Wiring
+
+Everything electronic except the servos lives in the head, so one harness climbs from the base.
+22 AWG silicone wire; leave a service loop at each axis.
+
+| Run | Wires | Path |
+|-----|-------|------|
+| base to yoke | 5 V, GND, pan signal | up through the 6 mm hole in the base top just outside the disc (arm A side at pan center), ~40 mm loop for the 180 degree pan swing, zip-tied to arm A through the two slots above the gusset |
+| yoke to head | the same three plus tilt signal | tilt servo 5 V/GND spliced onto the riser at arm A; in through the USB-C slot in the head floor with a loop for the tilt swing; soldered to the XIAO 5V, GND, D0 (pan) and D1 (tilt) pads |
+
+Inside the base the inlet's 5 V/GND feed the pan servo and the riser, and the riser's pan signal
+goes to the pan servo. Solder the splices, or use a 2x3 male header block as a servo bus so the
+servo plugs stay intact. The laser leads drop through the slot in the head top wall behind the
+saddle; the 2N2222 driver sits inside the head. The XIAO USB-C stays free for flashing; a
+right-angle cable fits the slot beside the harness.
+
 ### Assembly
 
 1. Center both servos electrically first (flash the firmware, power up, wait for both to hit 90).
-2. Base: drop the pan servo through the top plate, flange up, screws into the two bosses. Slide the
-   power inlet board into the rim notch, route its cable and the servo leads through the 12 mm hole,
-   then screw on the lid.
+2. Base: fit the pan servo from below, body up through the plate cut, flange against the bottom of
+   the two bosses, two M2 screws up into the pilots (the disc then rides about 1 mm off the plate).
+   Slide the power inlet board into the rim notch, wire the base per Wiring, then screw on the lid.
 3. Yoke: seat the **double-arm** horn in the channel under the disc (arms along the camera axis) and
    drive two M2 screws down through the slots into arm holes. Fit the tilt servo through arm A from the outside; the flange lands on the
    outer face; two M2 screws through the flange into the arm. Push the yoke onto the pan spline
    with the arms square to the camera direction and drive the horn screw down through the disc
-   countersink.
+   center hole; its head sits on the disc top.
 4. Head: lay the **single-arm** horn in the channel on the +Y face, arm pointing down (it may stick
    out ~3.5 mm past the bottom edge; trim it if you like) and drive two M2 screws from inside the head.
    Fit the board stack USB-C down: seat the camera module in the square socket first (lens through the

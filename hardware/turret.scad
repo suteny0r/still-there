@@ -163,12 +163,18 @@ base_boss_d = 6.5;
 inlet       = true;                         // rim notch for a panel-mount USB-C / DC jack breakout
 inlet_w     = 13;
 inlet_h     = 7;
-cable_hole_d= 12;
+cable_hole_d= 12;                           // under-disc cable hole, only useful with the flange on top
+pan_flange_below = true;                    // pan servo fitted from below, flange clamped up against the
+                                            // boss bottoms (as built). false: flange resting on the plate top.
+sv_boss_len = 6;                            // flange screw bosses under the top plate
+harness_hole_d = 6;                         // riser harness hole through the top plate, outside the disc
+harness_r   = 32.5;                         // its radius: disc edge 28, inner wall 36.6
 foot_d      = 10.5;
 
 // ------------------------------------------------------------ assembly Z's
 base_top   = base_h;
-disc_z0    = base_top + sv_horn_face - horn_pocket;    // disc bottom
+pan_flange_z = pan_flange_below ? base_top - base_top_t - sv_boss_len - sv_flange_t : base_top;  // flange bottom
+disc_z0    = pan_flange_z + sv_horn_face - horn_pocket;    // disc bottom (0.95 above the plate as built)
 disc_z1    = disc_z0 + disc_t;
 axis_z     = disc_z1 + axis_h;
 
@@ -264,13 +270,16 @@ module base() {
           cylinder(d = base_boss_d, h = base_h - base_top_t - base_lid_t + 0.01);
       // servo flange screw bosses under the top plate
       for (s = [-1, 1])
-        translate([sv_cx + s*sv_hole_sp/2, 0, base_h - base_top_t - 6])
-          cylinder(d = 6, h = 6.01);
+        translate([sv_cx + s*sv_hole_sp/2, 0, base_h - base_top_t - sv_boss_len])
+          cylinder(d = 6, h = sv_boss_len + 0.01);
     }
     // pan servo through the top plate, flange resting on top
     translate([0, 0, base_top]) servo_cut(z0 = -30, z1 = 5, pilot_z0 = -9.5, pilot_z1 = 1);
-    // cable hole through the top plate
-    translate([18, 0, base_h - base_top_t - 1]) cylinder(d = cable_hole_d, h = base_top_t + 2);
+    // under-disc cable hole (only with the flange on top; as built the disc rides 1 mm off the plate)
+    if (!pan_flange_below)
+      translate([18, 0, base_h - base_top_t - 1]) cylinder(d = cable_hole_d, h = base_top_t + 2);
+    // riser harness hole outside the disc, on the arm A (+Y) side at pan center
+    translate([0, harness_r, base_h - base_top_t - 1]) cylinder(d = harness_hole_d, h = base_top_t + 2);
     // lid screw pilots
     for (a = [45, 135, 225, 315]) rotate([0, 0, a])
       translate([base_d/2 - base_wall - base_boss_d/2 + 0.5, 0, -1])
@@ -342,6 +351,8 @@ module yoke() {
     translate([0, arm_a_out + sv_flange_t, axis_z])
       rotate([90, 0, 0]) rotate([0, 0, 90])
         servo_cut(z0 = sv_flange_t - 1, z1 = sv_flange_t + arm_t + 5, pilot_z0 = 0, pilot_z1 = 20);
+    // zip-tie slots through arm A above the gusset: the riser harness climbs the outer face
+    for (x = [-4, 4]) translate([x - 0.8, arm_a_in - 1, disc_z1 + 11.5]) cube([1.6, arm_t + 2, 4]);
     // pivot screw through arm B
     translate([0, arm_b_in + 1, axis_z]) rotate([90, 0, 0]) cylinder(d = m3_free, h = arm_t + 2);
     // pivot screw head countersink (outside)
@@ -478,7 +489,7 @@ module xiao_mock() {
 module assembly() {
   color("slategray") base();
   color("slategray") translate([0, 0, base_lid_t]) mirror([0, 0, 1]) base_lid();
-  translate([0, 0, base_top]) servo(mock = true);
+  translate([0, 0, pan_flange_z]) servo(mock = true);
   color("steelblue") yoke();
   translate([0, arm_a_out + sv_flange_t, axis_z]) rotate([90, 0, 0]) rotate([0, 0, 90]) servo(mock = true);
   translate([0, 0, axis_z]) {
