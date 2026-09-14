@@ -241,10 +241,9 @@ module servo_cut(z0 = -30, z1 = 30, pilot_z0 = -12, pilot_z1 = 30) {
 // a center hole passes the horn screw, and one continuous slot per arm takes M2 screws through
 // the wall into any of the arm's holes. dirs: list of unit directions (in the face plane) the
 // arm(s) point; len: hub center -> tip for each direction.
-// roof: local 2D direction that points "up" on the printer when this face prints vertically
-// (the head's channel). The recess edge on that side slopes 45 deg to the surface and the hub
-// counterbore gets a teardrop apex, so nothing overhangs flat and no support is needed inside.
-// [0, 0] (the disc, printed face-down) keeps plain vertical walls.
+// roof: optional; a local 2D direction that points "up" on the printer when this face prints
+// vertically. The recess edge on that side then slopes 45 deg to the surface and the hub counterbore
+// gets a teardrop apex. NOT used: it loosens the horn's coupling to the channel. Default [0, 0].
 module horn_channel(dirs, len, relief, center_d, through = 8, roof = [0, 0]) {
   w = sv_arm_w + 1.0;
   hub = sv_hub_d + 0.6;
@@ -410,8 +409,9 @@ module head() {
       // tilt horn (single arm, pointing down) on the +Y face; recess faces outward, screws from inside.
       // rotate([-90,0,0]) maps local +Z -> world +Y and local +Y -> world -Z, so dir [0,1] points down.
       translate([0, head_y1, 0]) rotate([-90, 0, 0])
-        horn_channel([[0, 1]], max(sv_single_l, head_z / 2 + 2), hub_relief_s, 4.6, through = side_a_t + 1,
-                     roof = [1, 0]);   // head prints front-face down: world +X (local +X) is up
+        horn_channel([[0, 1]], max(sv_single_l, head_z / 2 + 2), hub_relief_s, 4.6, through = side_a_t + 1);
+        // plain vertical channel walls by choice: full-depth horn coupling. The channel's upper edge is a
+        // 2.6 mm ceiling when the head prints front-down and sags a little; file the blemish off.
       // pivot pilot on the -Y face
       translate([0, head_y0 - pivot_ring_h - 0.01, 0]) rotate([-90, 0, 0]) cylinder(d = m3_pilot, h = pivot_ring_h + side_b_t + 1);  // through: M3x8 ends 0.35 short of the cavity
       // USB-C slot through the floor, open to the back: the receptacle sits on the XIAO top face
