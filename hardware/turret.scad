@@ -396,9 +396,12 @@ module head() {
         translate([head_x0, 0, 0]) rotate([90, 0, 90]) linear_extrude(wall + head_ix) head_outer_2d();
         // pivot spacer ring on the -Y face
         translate([0, head_y0 + 0.01, 0]) rotate([90, 0, 0]) cylinder(d = pivot_ring_d, h = pivot_ring_h);
-        // laser saddle
-        if (laser_mount)
-          translate([-1.5, 0, head_z/2 + 3]) cube([14, 11, 6.5], center = true);
+        // laser saddle: block behind, 45 deg slope down to the head's front edge in front, so the face
+        // that hangs over the bed when the head prints front-down is a printable overhang, not a ceiling
+        if (laser_mount) hull() {
+          translate([-5.75, -5.5, head_z/2 - 0.25]) cube([11.25, 11, 6.5]);          // x -5.75 .. 5.5
+          translate([head_x0, -5.5, head_z/2 - 0.25]) cube([5.5 - head_x0, 11, 0.5]); // base slab from the front face
+        }
       }
       // interior cavity, open at the back
       translate([front_in, -head_iy/2, -head_iz/2]) cube([head_ix + 1, head_iy, head_iz]);
