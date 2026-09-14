@@ -423,11 +423,13 @@ module head() {
         // lead drop: the laser leads fall through the top wall into the cavity behind the module
         translate([0, -2, head_z/2 - wall - 1]) cube([9, 4, wall + 4]);
       }
-      // coax groove in one side wall (coax_side), from behind the camera board to the back opening,
-      // at the far (antenna) end where the U.FL sits between the two boards
-      translate([front_in + d_cam_front + cam_pcb_t + 0.5,
-                 coax_side * (head_iy / 2) - (coax_side > 0 ? 0.01 : coax_groove - 0.01), pcb_l/2 - 6])
-        cube([head_ix, coax_groove, 4]);
+      // coax groove in one side wall (coax_side), from the camera board's back face to the back opening.
+      // The U.FL sits between the boards at the far-end corner and its cable can only leave over the
+      // far edge or sideways at that corner, so the groove runs from 4 mm below the XIAO's far edge up
+      // into the wall/ceiling corner (0.5 mm into the top wall) and the coax can enter it either way.
+      translate([front_in + d_cam_front + cam_pcb_t - 0.5,
+                 coax_side * (head_iy / 2) - (coax_side > 0 ? 0.01 : coax_groove - 0.01), pcb_l/2 - 4])
+        cube([head_ix, coax_groove, head_iz/2 + 0.5 - (pcb_l/2 - 4)]);
       // vent / mic slots on the -Y wall, low
       for (x = [5.5, 7.5]) translate([x, head_y0 - 1, -head_iz/2 + 4]) cube([1.6, side_b_t + 2, 6]);   // behind the pivot ring
     }
