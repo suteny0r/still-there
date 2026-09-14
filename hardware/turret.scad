@@ -119,7 +119,7 @@ ant_plate_dz = 9.5;         // plate center above the tilt axis: the plate (42 t
                             // 15 mm above the head behind the laser saddle. Its low edge at -11.5 stays above
                             // the USB notch in the lid, so a right-angle USB-C plug still runs out backward.
                             // (Below the head it would seal that notch.) Laser leads drop inside the head.
-coax_notch_w = 3.0;         // coax entry notch at the lid's top edge, through the lid layer and the lip
+coax_notch_w = 3.0;         // lid notch over the groove's end: groove depth + this much into the lip corner
 coax_groove  = 3.0;         // wall groove depth for the coax between the board stack and the back; deep enough
                             // for the bend out of the U.FL (leaves 2.5 of the 5.5 pivot-side wall)
 coax_side    = -1;          // -1: pivot-side (-Y) wall. CONFIRMED on the printed head: with the lens toward
@@ -494,11 +494,13 @@ module head_lid() {
     }
     // screw pilots
     for (y = [-7, 7]) translate([head_x1 - 1.5, y, head_iz/2 - 6]) cylinder(d = m2_pilot, h = 10);
-    // coax entry: a notch through the lid's inner layer and the lip's top segment at the top center,
-    // open at the head's top edge (the fin behind it stays whole). The coax comes down the fin's
-    // inner face and drops in here, under the lip, behind the XIAO.
-    translate([head_x1 - lid_lip - 0.01, -coax_notch_w / 2, head_iz/2 - lip_clr - lip_t - 0.05])
-      cube([lid_lip + lid_t + 0.01, coax_notch_w, 6]);
+    // coax exit: a notch through the lid's inner layer and the lip corner directly over the end of
+    // the wall groove (coax_side), from 4.5 mm below the groove top out through the lid's top edge.
+    // The groove is uncapped and continues up between the head's top wall and the fin, so the coax
+    // follows it straight out of the head at the top corner, then round the fin's side edge.
+    translate([head_x1 - lid_lip - 0.01,
+               coax_side > 0 ? head_iy/2 - coax_notch_w : -(head_iy/2 + coax_groove), 9])
+      cube([lid_lip + lid_t + 0.01, coax_groove + coax_notch_w, head_z/2 - 9 + 0.2]);
     // notch completing the USB slot
     if (usb_slot)
       translate([head_x1 - lid_lip - 1, -usb_w/2, -head_z/2 - 1]) cube([lid_lip + lid_t + ant_plate_t + 2, usb_w, wall + lip_t + 1.5]);

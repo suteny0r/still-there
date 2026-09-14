@@ -137,7 +137,7 @@ toggle "Invert pan" or "Invert tilt". Pan/tilt trim offsets the mechanical cente
 | `base_lid` | flat | 4x M2 into wall bosses, rubber-foot recesses, vent grid |
 | `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and a zip-tie slot near each edge for the harness; arm B has the M3 pivot with a countersink |
 | `head` | front face on the bed | camera module socket behind a 7.4 mm window, two standoffs bearing on the flex socket at the camera board's far end, which sits over its board-to-board connector (the end nearest the USB-C hangs free and gets no stop; the XIAO's exposed USB-end corners are the reset/boot buttons), a pad to the USB-C shell, lid posts behind the XIAO; 3 mm deep coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
-| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, outer face doubled to 4 mm over the whole lid and extended 15 mm above the head as a 2 mm fin for the 20 x 40 WiFi patch antenna (one flat face, prints on the bed), 3 mm coax entry notch at the top center of the lid |
+| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, outer face doubled to 4 mm over the whole lid and extended 15 mm above the head as a 2 mm fin for the 20 x 40 WiFi patch antenna (one flat face, prints on the bed), coax notch at the top corner on the pivot side continuing the head's wall groove out through the top edge |
 
 Render everything:
 
@@ -213,13 +213,13 @@ right-angle cable fits the slot beside the harness.
    back) and drive the two M2 screws through the top wall.
 5. Antenna (required: the XIAO ESP32S3 has no on-board antenna). The patch's adhesive is on the
    side opposite its coax, so the cable ends up on the exposed face. Stick the 20 x 40 patch to the
-   outer face of the lid and fin, centered, top edge about 1 mm below the fin top. Lead the coax
-   from the patch center up and out to the fin's side edge above the head, around the edge, along
-   the fin's inner face to the center, and down into the 3 mm notch at the lid's top edge. Inside,
-   it passes under the lip, over the far-end lid post, and into the wall groove on the pivot side to
-   the U.FL between the two boards (press one side of the U.FL plug in first, per Seeed). About
-   47 mm of the 75 mm cable is used; the slack sits behind the XIAO. `coax_side` in `turret.scad`
-   mirrors the groove if your U.FL is on the other side.
+   outer face of the lid and fin, centered, top edge about 1 mm below the fin top. Inside the head
+   the coax leaves the U.FL over the far edge or sideways at the corner into the 3 mm deep groove in
+   the pivot-side wall, runs back along it, and goes straight up through the notch in the lid's top
+   corner, out between the head's top wall and the fin. Outside it goes round the fin's side edge
+   to the patch center (press one side of the U.FL plug in first, per Seeed). About 40 mm of the
+   75 mm cable is used; loop the spare on the fin's inner face behind the laser saddle. `coax_side`
+   in `turret.scad` mirrors groove and notch if your U.FL is on the other side.
 6. Optional laser: push the 6 mm module into the saddle, M2 set screw from the top.
 
 ### Dimensions that matter
