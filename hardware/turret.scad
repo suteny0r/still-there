@@ -186,7 +186,7 @@ module cyl_x(d, l) { rotate([0, 90, 0]) cylinder(d = d, h = l, center = true); }
 module cyl_y(d, l) { rotate([90, 0, 0]) cylinder(d = d, h = l, center = true); }
 
 // -------------------------------------------------------------- servo model
-module servo(mock = false) {
+module servo(mock = false, single = false) {   // single: mock draws the single-arm horn pointing -X
   c = mock ? 0 : clr;
   color("dimgray") {
     // body
@@ -200,8 +200,14 @@ module servo(mock = false) {
     translate([0, 0, sv_boss_top]) cylinder(d = sv_spline_d + 2*c, h = sv_spline_h);
   }
   if (mock) color("white") {
-    translate([0, 0, sv_boss_top]) cylinder(d = sv_hub_d, h = sv_hub_top_d);               // hub
-    translate([0, 0, sv_horn_face - sv_horn_t / 2]) cube([sv_double_l, sv_arm_w, sv_horn_t], center = true);  // double arm
+    if (single) {
+      translate([0, 0, sv_boss_top]) cylinder(d = sv_hub_d, h = sv_hub_top_s);             // hub
+      translate([-sv_single_l / 2, 0, sv_boss_top + sv_horn_h_s - sv_horn_t / 2])
+        cube([sv_single_l, sv_arm_w, sv_horn_t], center = true);                           // single arm, -X
+    } else {
+      translate([0, 0, sv_boss_top]) cylinder(d = sv_hub_d, h = sv_hub_top_d);             // hub
+      translate([0, 0, sv_horn_face - sv_horn_t / 2]) cube([sv_double_l, sv_arm_w, sv_horn_t], center = true);  // double arm
+    }
   }
 }
 
@@ -491,7 +497,7 @@ module assembly() {
   color("slategray") translate([0, 0, base_lid_t]) mirror([0, 0, 1]) base_lid();
   translate([0, 0, pan_flange_z]) servo(mock = true);
   color("steelblue") yoke();
-  translate([0, arm_a_out + sv_flange_t, axis_z]) rotate([90, 0, 0]) rotate([0, 0, 90]) servo(mock = true);
+  translate([0, arm_a_out + sv_flange_t, axis_z]) rotate([90, 0, 0]) rotate([0, 0, 90]) servo(mock = true, single = true);  // local -X = down
   translate([0, 0, axis_z]) {
     color("orange") head();
     color("darkorange") head_lid();
