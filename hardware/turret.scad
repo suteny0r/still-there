@@ -435,6 +435,9 @@ module head() {
     // load through the board-to-board connector).
     for (sy = [-1, 1])
       translate([front_in - 0.01, sy * (cam_pcb_w/2 - 1.5) - 1.5, pcb_l/2 - 3.5]) cube([d_cam_front - cam_stop_clr + 0.01, 3, 3]);
+    // USB-end front stop: a pad to the front face of the USB-C shell (metal, 9 wide, between the two
+    // buttons), 0.3 short. Without it the stack could pivot about the far-end stops.
+    translate([front_in - 0.01, -3, -pcb_l/2 + 1.5]) cube([d_xiao_top - usb_shell_h - 0.3 + 0.01, 6, 3]);
   }
 }
 
