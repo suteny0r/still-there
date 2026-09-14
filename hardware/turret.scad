@@ -311,7 +311,7 @@ module base_lid() {
     for (a = [0, 90, 180, 270]) rotate([0, 0, a])
       translate([r - 10, 0, -0.01]) cylinder(d = foot_d, h = 0.8);
     // vent grid
-    for (x = [-3, -1, 1, 3]) translate([x*5, 0, -1]) cube([2.2, 30, 6], center = true);
+    for (x = [-3, -1, 1, 3]) translate([x*5, 0, base_lid_t/2]) cube([2.2, 30, base_lid_t + 2], center = true);   // through
   }
 }
 
