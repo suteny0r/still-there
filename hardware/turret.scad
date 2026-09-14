@@ -95,7 +95,7 @@ cam_dz       = cam_lens_z - pcb_l / 2;             // lens center vs XIAO center
 cam_win_d    = cam_barrel + 0.4;                   // 7.4 window: the housing stops on the wall
 cam_sock     = cam_housing + 0.6;                  // 8.6 square socket for the housing
 cam_sock_d   = cam_housing_d + 1.0;                // 3.0 socket depth: base + 1 mm of flex fold
-foam_gap     = 3.0;                                // camera-board standoffs stop this short; fill with foam
+cam_stop_clr = 0.1;                                // camera-board standoffs stop this short of the board
 d_xiao_top   = lens_to_top - lens_protrude;        // 8.93  XIAO top face
 d_xiao_back  = d_xiao_top + pcb_t;                 // 10.07 XIAO back face (lid posts stop 0.2 short)
 d_cam_front  = d_xiao_top - b2b_gap - cam_pcb_t;   // 4.93  camera board front face
@@ -105,9 +105,10 @@ d_cam_front  = d_xiao_top - b2b_gap - cam_pcb_t;   // 4.93  camera board front f
 ant_w        = 20.0;        // patch size
 ant_l        = 40.0;
 ant_plate_t  = 2.0;
-ant_plate_dz = -8.0;        // plate center below the tilt axis: the plate (42 tall on a 30 mm head) hangs
-                            // below the head, keeping the top clear for the laser. Low corner at -29 stays
-                            // 6 mm above the yoke disc at full 55 deg tilt.
+ant_plate_dz = 9.5;         // plate center above the tilt axis: the plate (42 tall on a 30 mm head) rises
+                            // 15 mm above the head behind the laser saddle. Its low edge at -11.5 stays above
+                            // the USB notch in the lid, so a right-angle USB-C plug still runs out backward.
+                            // (Below the head it would seal that notch.) Laser leads drop inside the head.
 ant_slot     = [4.0, 8.0];  // coax pass-through at the patch center (y, z)
 coax_groove  = 1.6;         // wall groove for the 1.1 mm coax between the board stack and the back
 coax_side    = -1;          // -1: pivot-side (-Y) wall. CONFIRMED on the printed head: with the lens toward
@@ -357,15 +358,13 @@ module yoke() {
     translate([0, arm_a_out + sv_flange_t, axis_z])
       rotate([90, 0, 0]) rotate([0, 0, 90])
         servo_cut(z0 = sv_flange_t - 1, z1 = sv_flange_t + arm_t + 5, pilot_z0 = 0, pilot_z1 = 20);
-    // zip-tie slots through arm A above the gusset: the riser harness climbs the outer face
-    for (x = [-4, 4]) translate([x - 0.8, arm_a_in - 1, disc_z1 + 11.5]) cube([1.6, arm_t + 2, 4]);
+    // zip-tie slots through arm A, one near each edge (x +-9.5), above the gusset and below the tilt
+    // servo flange: the tie goes through the slot and around the arm edge with the harness
+    for (x = [-9.5, 9.5]) translate([x - 0.8, arm_a_in - 1, disc_z1 + 10]) cube([1.6, arm_t + 2, 4]);
     // pivot screw through arm B
     translate([0, arm_b_in + 1, axis_z]) rotate([90, 0, 0]) cylinder(d = m3_free, h = arm_t + 2);
     // pivot screw head countersink (outside)
     translate([0, arm_b_out - 0.01, axis_z]) rotate([-90, 0, 0]) cylinder(d = 6.5, h = 1.6);
-    // cable tie slots in the disc
-    for (a = [60, 120, 240, 300]) rotate([0, 0, a])
-      translate([disc_d/2 - 6, 0, disc_z0 - 1]) cube([4, 1.6, disc_t + 2], center = true);
   }
 }
 
@@ -400,7 +399,7 @@ module head() {
         horn_channel([[0, 1]], max(sv_single_l, head_z / 2 + 2), hub_relief_s, 4.6, through = side_a_t + 1,
                      roof = [1, 0]);   // head prints front-face down: world +X (local +X) is up
       // pivot pilot on the -Y face
-      translate([0, head_y0 - pivot_ring_h - 0.01, 0]) rotate([-90, 0, 0]) cylinder(d = m3_pilot, h = pivot_ring_h + 5);
+      translate([0, head_y0 - pivot_ring_h - 0.01, 0]) rotate([-90, 0, 0]) cylinder(d = m3_pilot, h = pivot_ring_h + side_b_t + 1);  // through: M3x8 ends 0.35 short of the cavity
       // USB-C slot through the floor, open to the back: the receptacle sits on the XIAO top face
       if (usb_slot)
         translate([front_in + d_xiao_top - usb_shell_h - 2.5, -usb_w/2, -head_z/2 - 1])
@@ -420,7 +419,7 @@ module head() {
                  coax_side * (head_iy / 2) - (coax_side > 0 ? 0.01 : coax_groove - 0.01), pcb_l/2 - 6])
         cube([head_ix, coax_groove, 4]);
       // vent / mic slots on the -Y wall, low
-      for (x = [-3, 0, 3]) translate([x, head_y0 - 1, -head_iz/2 + 4]) cube([1.6, side_b_t + 2, 6]);
+      for (x = [5.5, 7.5]) translate([x, head_y0 - 1, -head_iz/2 + 4]) cube([1.6, side_b_t + 2, 6]);   // behind the pivot ring
     }
     // camera module socket: collar behind the front wall with a square pocket for the housing.
     // The flex pushes the module into it; nothing presses on the camera board or the connector.
@@ -430,14 +429,12 @@ module head() {
       // the flex leaves the back face of the base toward the USB end: no collar wall there behind the base
       translate([front_in + cam_housing_d, -cam_sock/2 - 3, cam_dz - cam_sock/2 - 3]) cube([cam_sock_d, cam_sock + 6, 3]);
     }
-    // XIAO front stops: two pads on the XIAO top face at its USB-end corners (the only exposed
-    // XIAO area; the wider camera board covers everything else), beside the USB-C shell
+    // front stops: two standoffs to the camera board's far-end corners. Nothing touches the XIAO's
+    // top face: its exposed USB-end corners carry the reset/boot buttons and the LEDs. The stack is
+    // held between these standoffs and the lid posts on the XIAO back (0.1 + 0.2 mm float, no clamp
+    // load through the board-to-board connector).
     for (sy = [-1, 1])
-      translate([front_in - 0.01, sy * (pcb_w/2 - 1.5) - 1.5, -pcb_l/2 + 0.5]) cube([d_xiao_top + 0.01, 3, 3]);
-    // camera-board standoffs at its far-end corners, stopping foam_gap short of the board:
-    // a foam pad fills the gap and steadies the far end without a rigid load on the connector
-    for (sy = [-1, 1])
-      translate([front_in - 0.01, sy * (cam_pcb_w/2 - 1.5) - 1.5, pcb_l/2 - 3.5]) cube([d_cam_front - foam_gap + 0.01, 3, 3]);
+      translate([front_in - 0.01, sy * (cam_pcb_w/2 - 1.5) - 1.5, pcb_l/2 - 3.5]) cube([d_cam_front - cam_stop_clr + 0.01, 3, 3]);
   }
 }
 
@@ -460,7 +457,8 @@ module head_lid() {
         cube([ant_plate_t, ant_w + 2, ant_l + 2]);
       // screw bosses inside the lip, top wall
       for (y = [-7, 7])
-        translate([head_x1 - lid_lip, y - 3, head_iz/2 - lip_clr - 4]) cube([lid_lip + 0.01, 6, 4]);
+        translate([head_x1 - lid_lip, y > 0 ? y - 3 : -(head_iy/2 - lip_clr), head_iz/2 - lip_clr - 4])
+          cube([lid_lip + 0.01, head_iy/2 - lip_clr - 4, 4]);   // 4 .. 9.15, flush with the lip
       // posts to the XIAO back face: far-end corners (unused D6/D7 pads) and, at the USB end,
       // inboard at Y +-3.5 flanking the flat BAT pads, clear of the soldered D0/D1/5V/GND pads
       for (sy = [-1, 1], sz = [-1, 1])
@@ -474,7 +472,7 @@ module head_lid() {
       cube([lid_t + ant_plate_t + 2, ant_slot[0], ant_slot[1]]);
     // notch completing the USB slot
     if (usb_slot)
-      translate([head_x1 - lid_lip - 1, -usb_w/2, -head_z/2 - 1]) cube([lid_lip + lid_t + 2, usb_w, wall + lip_t + 1]);
+      translate([head_x1 - lid_lip - 1, -usb_w/2, -head_z/2 - 1]) cube([lid_lip + lid_t + 2, usb_w, wall + lip_t + 1.5]);
   }
 }
 

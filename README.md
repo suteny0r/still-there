@@ -135,9 +135,9 @@ toggle "Invert pan" or "Invert tilt". Pan/tilt trim offsets the mechanical cente
 |------|-------------------|-------|
 | `base` | top plate on the bed | pan servo goes in from below, body up through the plate cut, flange clamped against the two bosses with M2 screws driven up into the pilots; 6 mm harness hole outside the disc, rim notch for a panel-mount USB-C/DC breakout (slides in from below, the lid closes it), vent slots |
 | `base_lid` | flat | 4x M2 into wall bosses, rubber-foot recesses, vent grid |
-| `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and two zip-tie slots for the harness; arm B has the M3 pivot with a countersink |
-| `head` | front face on the bed | camera module socket behind a 7.4 mm window, two XIAO pads at the USB end, two camera-board standoffs (3 mm foam gap) at the far end, lid posts behind the XIAO; 1.6 mm coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
-| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, 22 x 42 mm plate for the WiFi patch antenna hanging below the head (clear of the laser) with a 4 x 8 coax slot at its center |
+| `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and a zip-tie slot near each edge for the harness; arm B has the M3 pivot with a countersink |
+| `head` | front face on the bed | camera module socket behind a 7.4 mm window, two hard standoffs to the camera board's far-end corners (nothing touches the XIAO's USB end: reset/boot buttons live there), lid posts behind the XIAO; 1.6 mm coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
+| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, 22 x 42 mm plate for the WiFi patch antenna rising above the head behind the laser saddle (below the head it would seal the USB notch) with a 4 x 8 coax slot at its center |
 
 Render everything:
 
@@ -184,7 +184,7 @@ Everything electronic except the servos lives in the head, so one harness climbs
 
 | Run | Wires | Path |
 |-----|-------|------|
-| base to yoke | 5 V, GND, pan signal | up through the 6 mm hole in the base top just outside the disc (arm A side at pan center), ~40 mm loop for the 180 degree pan swing, zip-tied to arm A through the two slots above the gusset |
+| base to yoke | 5 V, GND, pan signal | up through the 6 mm hole in the base top just outside the disc (arm A side at pan center), ~40 mm loop for the 180 degree pan swing, zip-tied against arm A's edge (tie through the slot near the edge, around the edge and the bundle) |
 | yoke to head | the same three plus tilt signal | tilt servo 5 V/GND spliced onto the riser at arm A; in through the USB-C slot in the head floor with a loop for the tilt swing; soldered to the XIAO 5V, GND, D0 (pan) and D1 (tilt) pads |
 
 Inside the base the inlet's 5 V/GND feed the pan servo and the riser, and the riser's pan signal
@@ -207,8 +207,8 @@ right-angle cable fits the slot beside the harness.
 4. Head: lay the **single-arm** horn in the channel on the +Y face, arm pointing down (it may stick
    out ~3.5 mm past the bottom edge; trim it if you like) and drive two M2 screws from inside the head.
    Fit the board stack USB-C down: seat the camera module in the square socket first (lens through the
-   window), let the XIAO settle onto the two USB-end pads, put a ~3 mm foam pad on the two far-end
-   standoffs so it touches the camera board, then press the lid on (its posts stop 0.2 mm off the XIAO
+   window), let the camera board's far-end corners settle onto the two standoffs (nothing may press
+   on the XIAO's USB end: the reset and boot buttons are there), then press the lid on (its posts stop 0.2 mm off the XIAO
    back) and drive the two M2 screws through the top wall.
 5. Antenna (required: the XIAO ESP32S3 has no on-board antenna). Before the board goes in, seat the
    kit's U.FL plug (press one side in first, per Seeed), lead the coax out of the board stack on the
@@ -254,7 +254,7 @@ All at the top of `turret.scad`, mm:
   hangs on a short flex and is **not** fixed to the camera board: the head holds it in an 8.6 mm
   square socket behind a 7.4 mm window, so the flex pushes it into the socket. The XIAO is located
   by two pads on its exposed USB-end corners and four lid posts (0.2 mm clearance, no squeeze); two
-  standoffs at the camera board's far-end corners stop 3 mm short so a foam pad steadies that end
+  standoffs at the camera board's far-end corners are the front stops (0.1 mm clearance)
   without loading the connector. `lens_protrude` (2.3, barrel past the housing face) is derived, not
   measured; the flex absorbs a couple of mm either way.
 - `axis_h` 34: tilt axis above the disc. Raise it if you use a straight USB-C plug in the head.
