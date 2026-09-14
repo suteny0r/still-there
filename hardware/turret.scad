@@ -436,8 +436,8 @@ module head() {
     difference() {
       translate([front_in - 0.01, -cam_sock/2 - 2, cam_dz - cam_sock/2 - 2]) cube([cam_sock_d, cam_sock + 4, cam_sock + 4]);
       translate([front_in - 1, -cam_sock/2, cam_dz - cam_sock/2]) cube([cam_sock_d + 2, cam_sock, cam_sock]);
-      // the flex leaves the back face of the base up or down: no top or bottom collar wall behind the base
-      translate([front_in + cam_housing_d, -cam_sock/2 - 3, cam_dz - cam_sock/2 - 3]) cube([cam_sock_d, cam_sock + 6, 3]);
+      // the flex leaves the back face of the base toward the FAR end (up, to the socket at the camera
+      // board's far edge): no collar wall there behind the base. The USB-side wall stays full depth.
       translate([front_in + cam_housing_d, -cam_sock/2 - 3, cam_dz + cam_sock/2]) cube([cam_sock_d, cam_sock + 6, 3]);
     }
     // front stops: two standoffs to the TOP of the flex socket at the camera board's far-end corners,
