@@ -100,8 +100,11 @@ d_xiao_top   = lens_to_top - lens_protrude;        // 8.93  XIAO top face
 d_xiao_back  = d_xiao_top + pcb_t;                 // 10.07 XIAO back face (lid posts stop 0.2 short)
 d_cam_front  = d_xiao_top - b2b_gap - cam_pcb_t;   // 4.93  camera board front face
 // WiFi antenna: the XIAO ESP32S3 has no on-board antenna; the kit's adhesive FPC patch
-// (20 x 40 mm, 75 mm coax from its center to the U.FL between the two PCBs) sticks to a
-// plate on the back of the head lid, cable through a slot at the patch center.
+// (20 x 40 mm, 75 mm coax) sticks to the outer face of the head lid and its fin. The coax
+// leaves the patch center on the EXPOSED face (adhesive is on the other side), so it runs over
+// the patch to the fin's side edge above the head, around the edge, and drops into the head
+// through a 3 mm notch at the top center of the lid (coax_notch_w). About 47 mm of the 75 are
+// used; the rest is slack behind the XIAO.
 ant_w        = 20.0;        // patch size
 ant_l        = 40.0;
 ant_plate_t  = 2.0;
@@ -109,7 +112,7 @@ ant_plate_dz = 9.5;         // plate center above the tilt axis: the plate (42 t
                             // 15 mm above the head behind the laser saddle. Its low edge at -11.5 stays above
                             // the USB notch in the lid, so a right-angle USB-C plug still runs out backward.
                             // (Below the head it would seal that notch.) Laser leads drop inside the head.
-ant_slot     = [4.0, 8.0];  // coax pass-through at the patch center (y, z)
+coax_notch_w = 3.0;         // coax entry notch at the lid's top edge, through the lid layer and the lip
 coax_groove  = 1.6;         // wall groove for the 1.1 mm coax between the board stack and the back
 coax_side    = -1;          // -1: pivot-side (-Y) wall. CONFIRMED on the printed head: with the lens toward
                             // you and USB down the U.FL is at the top right, which is the side opposite the
@@ -474,9 +477,11 @@ module head_lid() {
     }
     // screw pilots
     for (y = [-7, 7]) translate([head_x1 - 1.5, y, head_iz/2 - 6]) cylinder(d = m2_pilot, h = 10);
-    // coax slot at the patch center, through plate and lid
-    translate([head_x1 - 1, (head_y0 + head_y1) / 2 - ant_slot[0] / 2, ant_plate_dz - ant_slot[1] / 2])
-      cube([lid_t + ant_plate_t + 2, ant_slot[0], ant_slot[1]]);
+    // coax entry: a notch through the lid's inner layer and the lip's top segment at the top center,
+    // open at the head's top edge (the fin behind it stays whole). The coax comes down the fin's
+    // inner face and drops in here, under the lip, behind the XIAO.
+    translate([head_x1 - lid_lip - 0.01, -coax_notch_w / 2, head_iz/2 - lip_clr - lip_t - 0.05])
+      cube([lid_lip + lid_t + 0.01, coax_notch_w, 6]);
     // notch completing the USB slot
     if (usb_slot)
       translate([head_x1 - lid_lip - 1, -usb_w/2, -head_z/2 - 1]) cube([lid_lip + lid_t + ant_plate_t + 2, usb_w, wall + lip_t + 1.5]);

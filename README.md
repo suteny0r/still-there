@@ -137,7 +137,7 @@ toggle "Invert pan" or "Invert tilt". Pan/tilt trim offsets the mechanical cente
 | `base_lid` | flat | 4x M2 into wall bosses, rubber-foot recesses, vent grid |
 | `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and a zip-tie slot near each edge for the harness; arm B has the M3 pivot with a countersink |
 | `head` | front face on the bed | camera module socket behind a 7.4 mm window, two hard standoffs to the camera board's far-end corners (nothing touches the XIAO's USB end: reset/boot buttons live there), lid posts behind the XIAO; 1.6 mm coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
-| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, outer face doubled to 4 mm over the whole lid and extended 15 mm above the head as a 2 mm fin for the 20 x 40 WiFi patch antenna (one flat face, prints on the bed), 4 x 8 coax slot at the patch center |
+| `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, outer face doubled to 4 mm over the whole lid and extended 15 mm above the head as a 2 mm fin for the 20 x 40 WiFi patch antenna (one flat face, prints on the bed), 3 mm coax entry notch at the top center of the lid |
 
 Render everything:
 
@@ -210,11 +210,15 @@ right-angle cable fits the slot beside the harness.
    window), let the camera board's far-end corners settle onto the two standoffs (nothing may press
    on the XIAO's USB end: the reset and boot buttons are there), then press the lid on (its posts stop 0.2 mm off the XIAO
    back) and drive the two M2 screws through the top wall.
-5. Antenna (required: the XIAO ESP32S3 has no on-board antenna). Before the board goes in, seat the
-   kit's U.FL plug (press one side in first, per Seeed), lead the coax out of the board stack on the
-   pivot side into the wall groove, back through the 4 x 8 slot in the lid, and stick the 20 x 40
-   patch to the plate on the outside of the lid over the slot. Coil the spare cable in the 6 mm space
-   behind the XIAO. `coax_side` in `turret.scad` mirrors the groove if your U.FL is on the other side.
+5. Antenna (required: the XIAO ESP32S3 has no on-board antenna). The patch's adhesive is on the
+   side opposite its coax, so the cable ends up on the exposed face. Stick the 20 x 40 patch to the
+   outer face of the lid and fin, centered, top edge about 1 mm below the fin top. Lead the coax
+   from the patch center up and out to the fin's side edge above the head, around the edge, along
+   the fin's inner face to the center, and down into the 3 mm notch at the lid's top edge. Inside,
+   it passes under the lip, over the far-end lid post, and into the wall groove on the pivot side to
+   the U.FL between the two boards (press one side of the U.FL plug in first, per Seeed). About
+   47 mm of the 75 mm cable is used; the slack sits behind the XIAO. `coax_side` in `turret.scad`
+   mirrors the groove if your U.FL is on the other side.
 6. Optional laser: push the 6 mm module into the saddle, M2 set screw from the top.
 
 ### Dimensions that matter
