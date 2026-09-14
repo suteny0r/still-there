@@ -429,7 +429,7 @@ module head() {
       // the flex leaves the back face of the base toward the USB end: no collar wall there behind the base
       translate([front_in + cam_housing_d, -cam_sock/2 - 3, cam_dz - cam_sock/2 - 3]) cube([cam_sock_d, cam_sock + 6, 3]);
     }
-    // front stops: two standoffs to the camera board's far-end corners. Nothing touches the XIAO's
+    // front stops: two standoffs to the camera board's far-end corners (VERIFIED bare). Nothing touches the XIAO's
     // top face: its exposed USB-end corners carry the reset/boot buttons and the LEDs. The stack is
     // held between these standoffs and the lid posts on the XIAO back (0.1 + 0.2 mm float, no clamp
     // load through the board-to-board connector).
