@@ -82,7 +82,12 @@ usb_shell_h  = 3.2;         // USB-C receptacle height above the XIAO top face
 cam_pcb_w    = 18.0;        // camera board width (across)
 cam_pcb_l    = 15.0;        // camera board length, flush with the XIAO's far end
 cam_pcb_t    = 1.0;
-b2b_gap      = 3.0;         // PCB-to-PCB gap set by the connector
+b2b_gap      = 3.11;        // PCB-to-PCB gap: MEASURED XIAO back -> camera board lens face 5.25, minus the
+                            // two board thicknesses. The board-to-board connector is at the USB end of the
+                            // camera board; the lens-module flex socket runs edge to edge along its FAR end
+                            // and stands cam_flex_sock_h proud of the lens face. No stop may touch that end:
+                            // it sits 2 mm high and pries the connector open at the other end.
+cam_flex_sock_h = 2.0;      // MEASURED 7.25 - 5.25
 cam_housing  = 8.0;         // module housing (lens base), square
 cam_housing_d= 2.0;         // MEASURED: lens base thickness
 cam_barrel   = 7.0;         // lens barrel diameter
@@ -95,7 +100,8 @@ cam_dz       = cam_lens_z - pcb_l / 2;             // lens center vs XIAO center
 cam_win_d    = cam_barrel + 0.4;                   // 7.4 window: the housing stops on the wall
 cam_sock     = cam_housing + 0.6;                  // 8.6 square socket for the housing
 cam_sock_d   = cam_housing_d + 1.0;                // 3.0 socket depth: base + 1 mm of flex fold
-cam_stop_clr = 0.1;                                // camera-board standoffs stop this short of the board
+cam_stop_clr = 0.2;                                // camera-board standoffs stop this short of the board
+cam_z0       = pcb_l/2 - cam_pcb_l;                // camera board's USB-end edge (-4.375)
 d_xiao_top   = lens_to_top - lens_protrude;        // 8.93  XIAO top face
 d_xiao_back  = d_xiao_top + pcb_t;                 // 10.07 XIAO back face (lid posts stop 0.2 short)
 d_cam_front  = d_xiao_top - b2b_gap - cam_pcb_t;   // 4.93  camera board front face
@@ -429,15 +435,18 @@ module head() {
     difference() {
       translate([front_in - 0.01, -cam_sock/2 - 2, cam_dz - cam_sock/2 - 2]) cube([cam_sock_d, cam_sock + 4, cam_sock + 4]);
       translate([front_in - 1, -cam_sock/2, cam_dz - cam_sock/2]) cube([cam_sock_d + 2, cam_sock, cam_sock]);
-      // the flex leaves the back face of the base toward the USB end: no collar wall there behind the base
+      // the flex leaves the back face of the base up or down: no top or bottom collar wall behind the base
       translate([front_in + cam_housing_d, -cam_sock/2 - 3, cam_dz - cam_sock/2 - 3]) cube([cam_sock_d, cam_sock + 6, 3]);
+      translate([front_in + cam_housing_d, -cam_sock/2 - 3, cam_dz + cam_sock/2]) cube([cam_sock_d, cam_sock + 6, 3]);
     }
-    // front stops: two standoffs to the camera board's far-end corners (VERIFIED bare). Nothing touches the XIAO's
-    // top face: its exposed USB-end corners carry the reset/boot buttons and the LEDs. The stack is
-    // held between these standoffs and the lid posts on the XIAO back (0.1 + 0.2 mm float, no clamp
-    // load through the board-to-board connector).
+    // front stops: two standoffs to the camera board's USB-END corners (VERIFIED bare), right over the
+    // board-to-board connector so the load goes straight into it in compression. The far-end corners
+    // are the flex socket (2 mm proud): a stop there tilts the board and pries the connector. Nothing
+    // touches the XIAO's top face either: its exposed USB-end corners carry the reset/boot buttons.
+    // With the USB-C shell pad below and the four lid posts behind, the stack is fully constrained
+    // (0.2 + 0.2 mm float, no clamp load through the connector).
     for (sy = [-1, 1])
-      translate([front_in - 0.01, sy * (cam_pcb_w/2 - 1.5) - 1.5, pcb_l/2 - 3.5]) cube([d_cam_front - cam_stop_clr + 0.01, 3, 3]);
+      translate([front_in - 0.01, sy * (cam_pcb_w/2 - 1.5) - 1.5, cam_z0 + 0.5]) cube([d_cam_front - cam_stop_clr + 0.01, 3, 3]);
     // USB-end front stop: a pad to the front face of the USB-C shell (metal, 9 wide, between the two
     // buttons), 0.3 short. Without it the stack could pivot about the far-end stops.
     translate([front_in - 0.01, -3, -pcb_l/2 + 1.5]) cube([d_xiao_top - usb_shell_h - 0.3 + 0.01, 6, 3]);
@@ -495,6 +504,7 @@ module xiao_mock() {
   front_in = head_x0 + wall;
   color("green") {
     translate([front_in + d_cam_front, -cam_pcb_w/2, pcb_l/2 - cam_pcb_l]) cube([cam_pcb_t, cam_pcb_w, cam_pcb_l]);  // camera board
+    translate([front_in + d_cam_front - cam_flex_sock_h, -cam_pcb_w/2, pcb_l/2 - 3]) cube([cam_flex_sock_h, cam_pcb_w, 3]);  // flex socket, far end
     translate([front_in + d_xiao_top, -pcb_w/2, -pcb_l/2]) cube([pcb_t, pcb_w, pcb_l]);                          // XIAO
   }
   color("black") {

@@ -136,7 +136,7 @@ toggle "Invert pan" or "Invert tilt". Pan/tilt trim offsets the mechanical cente
 | `base` | top plate on the bed | pan servo goes in from below, body up through the plate cut, flange clamped against the two bosses with M2 screws driven up into the pilots; 6 mm harness hole outside the disc, rim notch for a panel-mount USB-C/DC breakout (slides in from below, the lid closes it), vent slots |
 | `base_lid` | flat | 4x M2 into wall bosses, rubber-foot recesses, vent grid |
 | `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and a zip-tie slot near each edge for the harness; arm B has the M3 pivot with a countersink |
-| `head` | front face on the bed | camera module socket behind a 7.4 mm window, two hard standoffs to the camera board's far-end corners (nothing touches the XIAO's USB end: reset/boot buttons live there), lid posts behind the XIAO; 1.6 mm coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
+| `head` | front face on the bed | camera module socket behind a 7.4 mm window, two hard standoffs to the camera board's USB-end corners over its board-to-board connector (the far end is the flex socket, 2 mm proud; the XIAO's exposed USB-end corners are the reset/boot buttons), a pad to the USB-C shell, lid posts behind the XIAO; 1.6 mm coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
 | `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, outer face doubled to 4 mm over the whole lid and extended 15 mm above the head as a 2 mm fin for the 20 x 40 WiFi patch antenna (one flat face, prints on the bed), 3 mm coax entry notch at the top center of the lid |
 
 Render everything:
@@ -207,8 +207,9 @@ right-angle cable fits the slot beside the harness.
 4. Head: lay the **single-arm** horn in the channel on the +Y face, arm pointing down (it may stick
    out ~3.5 mm past the bottom edge; trim it if you like) and drive two M2 screws from inside the head.
    Fit the board stack USB-C down: seat the camera module in the square socket first (lens through the
-   window), let the camera board's far-end corners settle onto the two standoffs (nothing may press
-   on the XIAO's USB end: the reset and boot buttons are there), then press the lid on (its posts stop 0.2 mm off the XIAO
+   window), let the camera board's USB-end corners settle onto the two standoffs and the USB-C shell
+   onto its pad (nothing may press on the camera board's far end, that is the flex socket, nor on the
+   XIAO's USB-end corners, those are the reset and boot buttons), then press the lid on (its posts stop 0.2 mm off the XIAO
    back) and drive the two M2 screws through the top wall.
 5. Antenna (required: the XIAO ESP32S3 has no on-board antenna). The patch's adhesive is on the
    side opposite its coax, so the cable ends up on the exposed face. Stick the 20 x 40 patch to the
@@ -258,7 +259,7 @@ All at the top of `turret.scad`, mm:
   hangs on a short flex and is **not** fixed to the camera board: the head holds it in an 8.6 mm
   square socket behind a 7.4 mm window, so the flex pushes it into the socket. The XIAO is located
   by two pads on its exposed USB-end corners and four lid posts (0.2 mm clearance, no squeeze); two
-  standoffs at the camera board's far-end corners are the front stops (0.1 mm clearance)
+  standoffs at the camera board's USB-end corners and a pad on the USB-C shell are the front stops (0.2 mm clearance)
   without loading the connector. `lens_protrude` (2.3, barrel past the housing face) is derived, not
   measured; the flex absorbs a couple of mm either way.
 - `axis_h` 34: tilt axis above the disc. Raise it if you use a straight USB-C plug in the head.
