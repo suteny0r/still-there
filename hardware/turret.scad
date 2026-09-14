@@ -120,7 +120,8 @@ ant_plate_dz = 9.5;         // plate center above the tilt axis: the plate (42 t
                             // the USB notch in the lid, so a right-angle USB-C plug still runs out backward.
                             // (Below the head it would seal that notch.) Laser leads drop inside the head.
 coax_notch_w = 3.0;         // coax entry notch at the lid's top edge, through the lid layer and the lip
-coax_groove  = 1.6;         // wall groove for the 1.1 mm coax between the board stack and the back
+coax_groove  = 3.0;         // wall groove depth for the coax between the board stack and the back; deep enough
+                            // for the bend out of the U.FL (leaves 2.5 of the 5.5 pivot-side wall)
 coax_side    = -1;          // -1: pivot-side (-Y) wall. CONFIRMED on the printed head: with the lens toward
                             // you and USB down the U.FL is at the top right, which is the side opposite the
                             // horn channel. +1 mirrors it to the horn wall (groove stays above the axis).
