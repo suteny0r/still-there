@@ -180,18 +180,38 @@ supports are needed. Clearances (`clr`, `lip_clr`, `m2_*`/`m3_*` pilots) are at 
 ### Wiring
 
 Everything electronic except the servos lives in the head, so one harness climbs from the base.
-22 AWG silicone wire; leave a service loop at each axis.
+22 AWG silicone wire, two 3-pin male header stubs as splice points so the servo plugs stay intact.
+MG90S lead colors: brown GND, red 5 V, orange signal. Power from one source at a time: either the
+base inlet or the XIAO's USB-C, not both.
 
-| Run | Wires | Path |
-|-----|-------|------|
-| base to yoke | 5 V, GND, pan signal | up through the 6 mm hole in the base top just outside the disc (arm A side at pan center), ~40 mm loop for the 180 degree pan swing, zip-tied against arm A's edge (tie through the slot near the edge, around the edge and the bundle) |
-| yoke to head | the same three plus tilt signal | tilt servo 5 V/GND spliced onto the riser at arm A; in through the USB-C slot in the head floor with a loop for the tilt swing; soldered to the XIAO 5V, GND, D0 (pan) and D1 (tilt) pads |
+| Wire | From | To | Cut length |
+|------|------|----|-----------|
+| 5 V | inlet V pad | header A (base) -> header B (arm A) -> XIAO 5V pad | 60 + 180 + 80 |
+| GND | inlet GND pad | header A -> header B -> XIAO GND pad | 60 + 180 + 80 |
+| pan signal | header A (base) | XIAO D0 pad | 260 |
+| tilt signal | header B (arm A) | XIAO D1 pad | 80 |
+| laser + | XIAO 5V pad | laser red | 40 |
+| laser - | laser black | 2N2222 collector; emitter to XIAO GND; base via 1 k to D2 | 40 |
 
-Inside the base the inlet's 5 V/GND feed the pan servo and the riser, and the riser's pan signal
-goes to the pan servo. Solder the splices, or use a 2x3 male header block as a servo bus so the
-servo plugs stay intact. The laser leads drop through the slot in the head top wall behind the
-saddle; the 2N2222 driver sits inside the head. The XIAO USB-C stays free for flashing; a
-right-angle cable fits the slot beside the harness.
+1. **Base.** Slide the inlet breakout into the rim notch. Solder 5 V and GND from its V and GND pads
+   to two pins of header A; solder the riser's 5 V, GND and pan-signal wires to the same three pins
+   (two wires per power pin). Plug the pan servo onto header A: orange on the signal pin. Twist the
+   three riser wires, pass them up through the 6 mm hole in the top plate, and leave a 40 mm loop
+   above the plate for the pan swing. Screw the lid on.
+2. **Yoke.** Zip-tie the riser against arm A's edge through the slot 10 mm above the disc. Header B
+   sits at the tie: the riser's 5 V and GND end on two pins, the 5 V and GND wires going up to the
+   head start on the same pins, and the tilt-signal wire from the head ends on the third. Plug the
+   tilt servo onto header B. The pan-signal wire passes header B untouched. Heat-shrink both headers.
+3. **Head.** Four wires arrive from header B: 5 V, GND, pan signal, tilt signal. Give them a 20 mm
+   loop under the head for the tilt swing and bring them in through the USB-C slot in the floor.
+   Solder to the XIAO's back-face pads at the USB end (the pin names are printed on the back): D0
+   pan, D1 tilt, 5V, GND. Keep the joints low: the lid posts land at Y +-3.5 beside the battery pads.
+4. **Laser.** Push the module into the saddle, drop its leads through the slot behind the saddle.
+   Red to the 5V pad. Black to the 2N2222 collector; emitter to the GND pad; base through 1 k to the
+   D2 pad. Heat-shrink the transistor and tuck it behind the XIAO. Optional trigger button: D3 to GND.
+5. **Check** before closing: 5 V supply on, both servos center on boot, laser toggles from the web UI,
+   no wire crosses the tilt axis without slack. Flashing later: unplug the base inlet, use a
+   right-angle USB-C cable in the floor slot beside the harness.
 
 ### Assembly
 
