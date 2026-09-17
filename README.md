@@ -180,7 +180,10 @@ supports are needed. Clearances (`clr`, `lip_clr`, `m2_*`/`m3_*` pilots) are at 
 ### Wiring
 
 Everything electronic except the servos lives in the head, so one harness climbs from the base.
-22 AWG silicone wire, two 3-pin male header stubs as splice points so the servo plugs stay intact.
+22 AWG silicone wire. The two splice points are small perfboard scraps (about 4 x 6 holes) each
+carrying a 3-pin male header so the servo plugs stay intact: the header sits in one row, every wire
+gets its own hole in the header pin's row, and the row is bridged with solder. Never two wires on
+one header tail.
 MG90S lead colors: brown GND, red 5 V, orange signal. Power from one source at a time: either the
 base inlet or the XIAO's USB-C, not both.
 
@@ -194,15 +197,17 @@ base inlet or the XIAO's USB-C, not both.
 | laser - | laser black | 2N2222 collector; emitter to XIAO GND; base via 1 k to D2 | 40 |
 
 1. **Base.** Screw the inlet board to the flat pad on the back (+X) wall with two M2x4 self-tapping screws,
-   receptacle through the slot, pads facing in. Solder 5 V and GND from its V and GND pads
-   to two pins of header A; solder the riser's 5 V, GND and pan-signal wires to the same three pins
-   (two wires per power pin). Plug the pan servo onto header A: orange on the signal pin. Twist the
+   receptacle through the slot, pads facing in. Board A: header in one row; row 1 takes the inlet V
+   wire and the riser 5 V wire, row 2 the inlet GND wire and the riser GND wire, row 3 the riser
+   pan-signal wire; bridge each row. Foam-tape board A to the inside of the lid or tie it to a lid
+   boss. Plug the pan servo onto its header: orange on the signal pin. Twist the
    three riser wires, pass them up through the 6 mm hole in the top plate, and leave a 40 mm loop
    above the plate for the pan swing. Screw the lid on.
-2. **Yoke.** Zip-tie the riser against arm A's edge through the slot 10 mm above the disc. Header B
-   sits at the tie: the riser's 5 V and GND end on two pins, the 5 V and GND wires going up to the
-   head start on the same pins, and the tilt-signal wire from the head ends on the third. Plug the
-   tilt servo onto header B. The pan-signal wire passes header B untouched. Heat-shrink both headers.
+2. **Yoke.** Zip-tie the riser against arm A's edge through the slot 10 mm above the disc. Board B
+   rides under the same tie: row 1 takes the riser 5 V in and the head 5 V out, row 2 the same for
+   GND, row 3 the tilt-signal wire from the head; bridge each row. Plug the tilt servo onto its
+   header. The pan-signal wire passes board B untouched. (Alternative with no board on the yoke: cut
+   the tilt servo plug off and heat-shrink splice its three leads to the riser wires, one joint each.)
 3. **Head.** Four wires arrive from header B: 5 V, GND, pan signal, tilt signal. Give them a 20 mm
    loop under the head for the tilt swing and bring them in through the USB-C slot in the floor.
    Solder to the XIAO's back-face pads at the USB end (the pin names are printed on the back): D0
