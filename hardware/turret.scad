@@ -172,9 +172,13 @@ base_wall   = 2.4;
 base_top_t  = 3.0;
 base_lid_t  = 2.5;
 base_boss_d = 6.5;
-inlet       = true;                         // rim notch for a panel-mount USB-C / DC jack breakout
-inlet_w     = 13;
-inlet_h     = 7;
+inlet       = true;                         // panel-mount USB-C breakout on the -X wall (BOM item 6)
+inlet_pcb   = [20.1, 6.75];                 // MEASURED board: 20 x 6.75, flat against the wall inside
+inlet_hole_sp = 16.0;                       // MEASURED: two mounting holes 16 mm apart, on the board's centerline
+inlet_port  = [10.0, 4.2];                  // clearance slot for the receptacle body through the wall (y, z)
+inlet_pad_x = 34.0;                         // flat internal face at this radius (wall inner r 36.6: the pad is
+                                            // 2.6 thick at the center, 1.3 at the board ends, plus the 2.4 wall)
+inlet_z0    = base_lid_t + 1.0;             // board bottom edge above the lid
 cable_hole_d= 12;                           // under-disc cable hole, only useful with the flange on top
 pan_flange_below = true;                    // pan servo fitted from below, flange clamped up against the
                                             // boss bottoms (as built). false: flange resting on the plate top.
@@ -289,6 +293,12 @@ module base() {
       for (s = [-1, 1])
         translate([sv_cx + s*sv_hole_sp/2, 0, base_h - base_top_t - sv_boss_len])
           cylinder(d = 6, h = sv_boss_len + 0.01);
+      // inlet mounting pad: a flat face inside the curved wall, wide enough for the board plus 2 mm
+      if (inlet) intersection() {
+        cylinder(d = base_d - 0.02, h = base_h);
+        translate([-base_d/2, -(inlet_pcb[0]/2 + 2), base_lid_t])
+          cube([base_d/2 - inlet_pad_x, inlet_pcb[0] + 4, inlet_pcb[1] + 3]);
+      }
     }
     // pan servo through the top plate, flange resting on top
     translate([0, 0, base_top]) servo_cut(z0 = -30, z1 = 5, pilot_z0 = -9.5, pilot_z1 = 1);
@@ -301,11 +311,17 @@ module base() {
     for (a = [45, 135, 225, 315]) rotate([0, 0, a])
       translate([base_d/2 - base_wall - base_boss_d/2 + 0.5, 0, -1])
         cylinder(d = m2_pilot, h = 12);
-    // power inlet on the -X side: a notch open to the bottom rim (no bridge to print;
-    // slide a panel-mount USB-C / DC breakout in from below, the lid closes it)
-    if (inlet)
-      translate([-base_d/2, 0, (base_lid_t + 2 + inlet_h - 1)/2])
-        cube([base_wall*3, inlet_w, base_lid_t + 2 + inlet_h + 1], center = true);
+    // power inlet on the -X side: the board screws flat to the internal pad (added in the union
+    // below), its receptacle passes through a slot that is open to the bottom rim so nothing has to
+    // bridge when the base prints top-down; the lid's edge closes the slot from below.
+    if (inlet) {
+      translate([-base_d/2 - 1, -inlet_port[0]/2, -1])
+        cube([base_d/2 - inlet_pad_x + 2, inlet_port[0], 1 + inlet_z0 + inlet_pcb[1]/2 + inlet_port[1]/2]);
+      // M2 pilots for the board's two mounting holes, 3.5 deep into the pad (M2x4 self-tapping)
+      for (sy = [-1, 1])
+        translate([-inlet_pad_x + 0.01, sy * inlet_hole_sp/2, inlet_z0 + inlet_pcb[1]/2])
+          rotate([0, -90, 0]) cylinder(d = m2_pilot, h = 3.5);
+    }
     // vent slots on the +X side
     for (i = [-1, 0, 1]) translate([base_d/2, i*6, 14]) cube([base_wall*3, 2.2, 14], center = true);
   }
