@@ -181,7 +181,10 @@ inlet_pad_x = 34.0;                         // flat internal face at this radius
 inlet_z0    = base_lid_t + 1.0;             // board bottom edge above the lid
 cable_hole_d= 12;                           // under-disc cable hole, only useful with the flange on top
 pan_flange_below = true;                    // pan servo fitted from below, flange clamped up against the
-                                            // boss bottoms (as built). false: flange resting on the plate top.
+                                            // boss bottoms (as built). false = flange on the plate top DOES NOT
+                                            // WORK: the servo lead leaves the body end face right under the
+                                            // ear and runs into the screw boss beneath the plate. Kept only
+                                            // for the geometry history.
 sv_boss_len = 6;                            // flange screw bosses under the top plate
 harness_hole_d = 6;                         // riser harness hole through the top plate, outside the disc
 harness_r   = 32.5;                         // its radius: disc edge 28, inner wall 36.6
@@ -228,8 +231,11 @@ module servo(mock = false, single = false) {   // single: mock draws the single-
 }
 
 // Through-cut for a servo whose body passes through a plate lying at local Z in
-// [z0, z1], plus pilot holes for the two flange screws (M2 self-tapping). The servo
-// lead exits on the body side that ends up in free air in both mounts, so no relief.
+// [z0, z1], plus pilot holes for the two flange screws (M2 self-tapping).
+// MG90S lead exit: from the END FACE of the body (the -X end, away from the shaft) just below
+// the ear. Anything within ~2 mm of that end face at ear level blocks the lead. In the base the
+// screw bosses under the plate sit exactly there, which is why the pan servo cannot mount with
+// its flange on the plate (see pan_flange_below). On arm A the body is outside in free air.
 module servo_cut(z0 = -30, z1 = 30, pilot_z0 = -12, pilot_z1 = 30) {
   translate([sv_cx, 0, z0]) linear_extrude(z1 - z0)
     square([sv_cut_l + 2*clr, sv_cut_w + 2*clr], center = true);
