@@ -133,7 +133,7 @@ toggle "Invert pan" or "Invert tilt". Pan/tilt trim offsets the mechanical cente
 
 | Part | Print orientation | Notes |
 |------|-------------------|-------|
-| `base` | top plate on the bed | pan servo goes in from below, body up through the plate cut, flange clamped against the two bosses with M2 screws driven up into the pilots; 6 mm harness hole outside the disc, flat internal pad on the -X wall with two M2 pilots 16 mm apart for the USB-C inlet board and a 10 x 4.2 receptacle slot open to the bottom rim (the lid closes it), vent slots |
+| `base` | top plate on the bed | pan servo goes in from below, body up through the plate cut, flange clamped against the two bosses with M2 screws driven up into the pilots; 6 mm harness hole outside the disc, flat internal pad on the +X (back) wall with two M2 pilots 16 mm apart for the USB-C inlet board and a 10 x 4.2 receptacle slot open to the bottom rim (the lid closes it), vent slots |
 | `base_lid` | flat | 4x M2 into wall bosses, rubber-foot recesses, vent grid |
 | `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and a zip-tie slot near each edge for the harness; arm B has the M3 pivot with a countersink |
 | `head` | front face on the bed | camera module socket behind a 7.4 mm window, two standoffs bearing on the flex socket at the camera board's far end, which sits over its board-to-board connector (the end nearest the USB-C hangs free and gets no stop; the XIAO's exposed USB-end corners are the reset/boot buttons), a pad to the USB-C shell, lid posts behind the XIAO; 3 mm deep coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
@@ -193,7 +193,7 @@ base inlet or the XIAO's USB-C, not both.
 | laser + | XIAO 5V pad | laser red | 40 |
 | laser - | laser black | 2N2222 collector; emitter to XIAO GND; base via 1 k to D2 | 40 |
 
-1. **Base.** Screw the inlet board to the flat pad on the -X wall with two M2x4 self-tapping screws,
+1. **Base.** Screw the inlet board to the flat pad on the back (+X) wall with two M2x4 self-tapping screws,
    receptacle through the slot, pads facing in. Solder 5 V and GND from its V and GND pads
    to two pins of header A; solder the riser's 5 V, GND and pan-signal wires to the same three pins
    (two wires per power pin). Plug the pan servo onto header A: orange on the signal pin. Twist the

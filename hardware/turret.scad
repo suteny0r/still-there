@@ -172,7 +172,11 @@ base_wall   = 2.4;
 base_top_t  = 3.0;
 base_lid_t  = 2.5;
 base_boss_d = 6.5;
-inlet       = true;                         // panel-mount USB-C breakout on the -X wall (BOM item 6)
+inlet       = true;                         // panel-mount USB-C breakout (BOM item 6)
+inlet_ang   = 180;                          // wall angle: 180 = +X, the BACK of the turret. The pan servo body
+                                            // ends 6.6 mm from center on +X but 17.6 on -X (shaft offset), so
+                                            // +X and +-Y give ~30 mm behind the board, -X only ~16. Vents go
+                                            // on the opposite wall.
 inlet_pcb   = [20.1, 6.75];                 // MEASURED board: 20 x 6.75, flat against the wall inside
 inlet_hole_sp = 16.0;                       // MEASURED: two mounting holes 16 mm apart, on the board's centerline
 inlet_port  = [10.0, 4.2];                  // clearance slot for the receptacle body through the wall (y, z)
@@ -300,7 +304,8 @@ module base() {
         translate([sv_cx + s*sv_hole_sp/2, 0, base_h - base_top_t - sv_boss_len])
           cylinder(d = 6, h = sv_boss_len + 0.01);
       // inlet mounting pad: a flat face inside the curved wall, wide enough for the board plus 2 mm
-      if (inlet) intersection() {
+      // (authored on -X, turned to inlet_ang)
+      if (inlet) rotate([0, 0, inlet_ang]) intersection() {
         cylinder(d = base_d - 0.02, h = base_h);
         translate([-base_d/2, -(inlet_pcb[0]/2 + 2), base_lid_t])
           cube([base_d/2 - inlet_pad_x, inlet_pcb[0] + 4, inlet_pcb[1] + 3]);
@@ -320,7 +325,7 @@ module base() {
     // power inlet on the -X side: the board screws flat to the internal pad (added in the union
     // below), its receptacle passes through a slot that is open to the bottom rim so nothing has to
     // bridge when the base prints top-down; the lid's edge closes the slot from below.
-    if (inlet) {
+    if (inlet) rotate([0, 0, inlet_ang]) {
       translate([-base_d/2 - 1, -inlet_port[0]/2, -1])
         cube([base_d/2 - inlet_pad_x + 2, inlet_port[0], 1 + inlet_z0 + inlet_pcb[1]/2 + inlet_port[1]/2]);
       // M2 pilots for the board's two mounting holes, 3.5 deep into the pad (M2x4 self-tapping)
@@ -328,8 +333,8 @@ module base() {
         translate([-inlet_pad_x + 0.01, sy * inlet_hole_sp/2, inlet_z0 + inlet_pcb[1]/2])
           rotate([0, -90, 0]) cylinder(d = m2_pilot, h = 3.5);
     }
-    // vent slots on the +X side
-    for (i = [-1, 0, 1]) translate([base_d/2, i*6, 14]) cube([base_wall*3, 2.2, 14], center = true);
+    // vent slots on the wall opposite the inlet
+    rotate([0, 0, inlet_ang]) for (i = [-1, 0, 1]) translate([base_d/2, i*6, 14]) cube([base_wall*3, 2.2, 14], center = true);
   }
 }
 
