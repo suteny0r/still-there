@@ -61,6 +61,10 @@ sv_hub_top_s= 6.4;          // single arm: boss top -> top of the hub (A2s), 2.6
 sv_horn_h_d = 5.85;         // double arm: boss top -> outer face of the arm plate (A1)
 sv_hub_top_d= 6.26;         // double arm: boss top -> top of the hub (A2), 0.41 proud of the arm
 gap_margin  = 0.8;          // extra head-to-arm clearance; a short hub seat beats a rubbing head
+sv_seat_extra_s = 2.0;      // AS ASSEMBLED 2026-09-17: the single-arm horn sits 2 mm higher on the tilt servo's
+                            // spline than the bench-measured hub height, so the whole head is 2 mm further
+                            // from arm A. Goes into gap_a only; the horn itself (and the head's pocket and
+                            // hub counterbore) is unchanged.
 sv_cx       = sv_shaft_off - sv_l/2;            // body center X in the local frame (-5.5)
 sv_top      = sv_h - sv_flange_z;               // body top above flange bottom (6.7)
 sv_boss_top = sv_top + sv_boss_h;               // 9.2
@@ -157,11 +161,13 @@ disc_t   = 5.0;                             // takes the 3.6 double-arm counterb
 arm_t    = 3.0;
 arm_w    = 26;
 axis_h   = 34;                              // disc top -> tilt axis
-gap_a    = (sv_top - sv_flange_t - arm_t) + sv_boss_h + sv_horn_h_s - horn_pocket + gap_margin;  // single arm on the head
+gap_a    = (sv_top - sv_flange_t - arm_t) + sv_boss_h + sv_horn_h_s + sv_seat_extra_s - horn_pocket + gap_margin;  // 8.4
 gap_b    = pivot_ring_h;
-arm_a_in = head_y1 + gap_a;                 // arm A inner face (Y)
+head_dy  = -sv_seat_extra_s;                // head frame offset along the tilt axis from the pan axis: keeps
+                                            // arm A at the disc edge, moves arm B outward instead (user's call)
+arm_a_in = head_dy + head_y1 + gap_a;       // arm A inner face (Y)  22.3, unchanged
 arm_a_out= arm_a_in + arm_t;
-arm_b_in = head_y0 - gap_b;                 // arm B inner face (Y), negative
+arm_b_in = head_dy + head_y0 - gap_b;       // arm B inner face (Y) -18.4, was -16.4
 arm_b_out= arm_b_in - arm_t;
 gusset_h = 10;
 
@@ -224,8 +230,8 @@ module servo(mock = false, single = false) {   // single: mock draws the single-
   }
   if (mock) color("white") {
     if (single) {
-      translate([0, 0, sv_boss_top]) cylinder(d = sv_hub_d, h = sv_hub_top_s);             // hub
-      translate([-sv_single_l / 2, 0, sv_boss_top + sv_horn_h_s - sv_horn_t / 2])
+      translate([0, 0, sv_boss_top + sv_seat_extra_s]) cylinder(d = sv_hub_d, h = sv_hub_top_s);   // hub, as seated
+      translate([-sv_single_l / 2, 0, sv_boss_top + sv_seat_extra_s + sv_horn_h_s - sv_horn_t / 2])
         cube([sv_single_l, sv_arm_w, sv_horn_t], center = true);                           // single arm, -X
     } else {
       translate([0, 0, sv_boss_top]) cylinder(d = sv_hub_d, h = sv_hub_top_d);             // hub
@@ -557,7 +563,7 @@ module assembly() {
   translate([0, 0, pan_flange_z]) servo(mock = true);
   color("steelblue") yoke();
   translate([0, arm_a_out + sv_flange_t, axis_z]) rotate([90, 0, 0]) rotate([0, 0, 90]) servo(mock = true, single = true);  // local -X = down
-  translate([0, 0, axis_z]) {
+  translate([0, head_dy, axis_z]) {
     color("orange") head();
     color("darkorange") head_lid();
     xiao_mock();
