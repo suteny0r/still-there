@@ -226,10 +226,10 @@ base inlet or the XIAO's USB-C, not both.
    the two bosses, two M2 screws up into the pilots (the disc then rides about 1 mm off the plate).
    Screw the power inlet board to its pad (two M2x4), wire the base per Wiring, then screw on the lid.
 3. Yoke: seat the **double-arm** horn in the channel under the disc (arms along the camera axis) and
-   drive two M2 screws down through the slots into arm holes. Fit the tilt servo through arm A from the outside; the flange lands on the
-   outer face; two M2 screws through the flange into the arm. Push the yoke onto the pan spline
+   drive two M2 screws down through the slots into arm holes. Push the yoke onto the pan spline
    with the arms square to the camera direction and drive the horn screw down through the disc
-   center hole; its head sits on the disc top.
+   center hole; its head sits on the disc top. Do NOT fit the tilt servo yet: the head has no axial
+   room to engage the spline once the servo is in the arm.
 4. Head: lay the **single-arm** horn in the channel on the +Y face, arm pointing down (it may stick
    out ~3.5 mm past the bottom edge; trim it if you like) and drive two M2 screws from inside the head.
    Fit the board stack USB-C down: seat the camera module in the square socket first (lens through the
@@ -246,7 +246,10 @@ base inlet or the XIAO's USB-C, not both.
    to the patch center (press one side of the U.FL plug in first, per Seeed). About 40 mm of the
    75 mm cable is used; loop the spare on the fin's inner face behind the laser saddle. `coax_side`
    in `turret.scad` mirrors groove and notch if your U.FL is on the other side.
-6. Optional laser: push the 6 mm module into the saddle, M2 set screw from the top.
+6. Head onto the yoke: set the head between the arms with the pivot ring against arm B and drive the
+   M3x8 through arm B into the ring. Then fit the tilt servo from OUTSIDE arm A, output end first,
+   body through the cutout, spline into the horn hub, and drive its two flange screws into the arm.
+7. Optional laser: push the 6 mm module into the saddle, M2 set screw from the top.
 
 ### Dimensions that matter
 
