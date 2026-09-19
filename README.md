@@ -124,8 +124,10 @@ full travel. Check that neither servo buzzes at 0 or 180 before widening.
 
 ### Direction and trims
 
-Servo orientation decides sign. In Face or Motion mode, if the turret runs away from the target
-toggle "Invert pan" or "Invert tilt". Pan/tilt trim offsets the mechanical center. Both persist.
+Servo orientation decides sign. If the head moves the wrong way, in manual control or by running
+away from a target, toggle "Invert pan" or "Invert tilt" and press Save. The flag mirrors the servo
+output about 90 degrees, so manual, scan, click-to-aim and tracking all reverse together. Pan/tilt
+trim offsets the mechanical center. Both persist.
 
 ## Enclosure
 

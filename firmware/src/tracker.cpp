@@ -4,6 +4,14 @@
 
 static Preferences prefs;
 
+// Invert flags act at the servo output, mirrored about 90, so manual, scan, click-to-aim and
+// tracking all reverse together when a servo is mounted the other way round. Angles elsewhere are
+// logical: more tilt degrees = camera up, more pan degrees = camera right in the image.
+void Tracker::writeServos() {
+  _panServo.writeDeg((settings.invertPan ? 180.0f - _pan : _pan) + settings.panTrim);
+  _tiltServo.writeDeg((settings.invertTilt ? 180.0f - _tilt : _tilt) + settings.tiltTrim);
+}
+
 void Tracker::begin() {
   pinMode(PIN_LASER, OUTPUT);
   digitalWrite(PIN_LASER, LOW);
@@ -12,8 +20,7 @@ void Tracker::begin() {
   loadSettings();
   _pan = _panSet = PAN_CENTER_DEG;
   _tilt = _tiltSet = TILT_CENTER_DEG;
-  _panServo.writeDeg(_pan + settings.panTrim);
-  _tiltServo.writeDeg(_tilt + settings.tiltTrim);
+  writeServos();
   _lastMoveMs = millis();
 }
 
@@ -58,11 +65,11 @@ void Tracker::onDetection(const Target& t, uint32_t nowMs) {
     // slowly moving target is followed without dropping the lock.
     if (fabsf(exPx) > dead) {
       // Target right of center: pan toward it. Direction depends on servo mounting.
-      _panSet = clampPan(_panSet + settings.kp * ex * (settings.invertPan ? -1.0f : 1.0f));
+      _panSet = clampPan(_panSet + settings.kp * ex);
     }
     if (fabsf(eyPx) > dead) {
       // Target above center (ey < 0): tilt up. Default: larger angle = up.
-      _tiltSet = clampTilt(_tiltSet + settings.kp * (-ey) * (settings.invertTilt ? -1.0f : 1.0f));
+      _tiltSet = clampTilt(_tiltSet + settings.kp * (-ey));
     }
 
     bool inside = fabsf(exPx) <= dead && fabsf(eyPx) <= dead;
@@ -115,8 +122,7 @@ void Tracker::tick(uint32_t nowMs) {
   float dtl = step(_tilt, _tiltSet);
   _pan += dp;
   _tilt += dtl;
-  _panServo.writeDeg(_pan + settings.panTrim);
-  _tiltServo.writeDeg(_tilt + settings.tiltTrim);
+  writeServos();
 
   _moving = (fabsf(dp) > 0.08f) || (fabsf(dtl) > 0.08f);
   if (_moving) _lastMoveMs = nowMs;
@@ -150,8 +156,8 @@ void Tracker::center() {
 void Tracker::aimAtPixel(int px, int py) {
   float ex = ((float)px - CAM_W / 2.0f) / (CAM_W / 2.0f);
   float ey = ((float)py - CAM_H / 2.0f) / (CAM_H / 2.0f);
-  _panSet = clampPan(_panSet + settings.kp * ex * (settings.invertPan ? -1.0f : 1.0f));
-  _tiltSet = clampTilt(_tiltSet + settings.kp * (-ey) * (settings.invertTilt ? -1.0f : 1.0f));
+  _panSet = clampPan(_panSet + settings.kp * ex);
+  _tiltSet = clampTilt(_tiltSet + settings.kp * (-ey));
 }
 
 void Tracker::loadSettings() {

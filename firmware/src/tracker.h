@@ -84,6 +84,7 @@ class Tracker {
   float clampTilt(float v) const;
 
   ServoOut _panServo, _tiltServo;
+  void writeServos();
   Mode _mode = MODE_MANUAL;
   float _pan = PAN_CENTER_DEG, _tilt = TILT_CENTER_DEG;
   float _panSet = PAN_CENTER_DEG, _tiltSet = TILT_CENTER_DEG;
