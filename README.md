@@ -212,10 +212,14 @@ base inlet or the XIAO's USB-C, not both.
    the tilt servo plug off and heat-shrink splice its three leads to the riser wires, one joint each.)
 3. **Head.** Four wires arrive from header B: 5 V, GND, pan signal, tilt signal. Give them a 20 mm
    loop under the head for the tilt swing and bring them in through the USB-C slot in the floor.
-   Solder to the XIAO's back-face pads at the USB end. Holding the board back-face up with the USB-C
-   at the top, the first pads down the RIGHT edge are D0 (pan), D1 (tilt), D2 (laser), D3 (button),
-   and the first two down the LEFT edge are 5V and GND; the silkscreen on the back confirms each
-   one. Keep the joints low: the lid posts land at Y +-3.5 beside the battery pads.
+   Solder into the XIAO's plated THROUGH-HOLES from the back face: tinned wire in from the back,
+   joint on the back, wire end trimmed flush at the front. Keep solder out of the edge castellations:
+   the cavity leaves 0.5 mm per side and any bead on the edge jams the board. Holding the board
+   back-face up with the USB-C at the top, the first holes down the RIGHT edge are D0 (pan), D1
+   (tilt), D2 (laser), D3 (button), and the first two down the LEFT edge are 5V and GND; the
+   silkscreen on the back confirms each one. Keep the joints low: the lid posts land at Y +-3.5
+   beside the battery pads. Horn screws: use the two arm holes below the board's USB edge (more than
+   11 mm from the hub); a screw head higher up sits against the board edge.
 4. **Laser.** Push the module into the saddle, drop its leads through the slot behind the saddle.
    Red to the 5V pad. Black to the 2N2222 collector; emitter to the GND pad; base through 1 k to the
    D2 pad. Heat-shrink the transistor and tuck it behind the XIAO. Optional trigger button: D3 to GND.
