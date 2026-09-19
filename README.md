@@ -180,6 +180,8 @@ supports are needed. Clearances (`clr`, `lip_clr`, `m2_*`/`m3_*` pilots) are at 
 ### Wiring
 
 Everything electronic except the servos lives in the head, so one harness climbs from the base.
+Pins below are the `xiao_espdet` build (the one in the turret): pan D0, tilt D1, laser D2, button D3.
+The `*_expansion` builds move tilt to D2 and the laser to D6; do not wire the head from those.
 22 AWG silicone wire. The two splice points are small perfboard scraps (about 4 x 6 holes) each
 carrying a 3-pin male header so the servo plugs stay intact: the header sits in one row, every wire
 gets its own hole in the header pin's row, and the row is bridged with solder. Never two wires on
@@ -210,8 +212,10 @@ base inlet or the XIAO's USB-C, not both.
    the tilt servo plug off and heat-shrink splice its three leads to the riser wires, one joint each.)
 3. **Head.** Four wires arrive from header B: 5 V, GND, pan signal, tilt signal. Give them a 20 mm
    loop under the head for the tilt swing and bring them in through the USB-C slot in the floor.
-   Solder to the XIAO's back-face pads at the USB end (the pin names are printed on the back): D0
-   pan, D1 tilt, 5V, GND. Keep the joints low: the lid posts land at Y +-3.5 beside the battery pads.
+   Solder to the XIAO's back-face pads at the USB end. Holding the board back-face up with the USB-C
+   at the top, the first pads down the RIGHT edge are D0 (pan), D1 (tilt), D2 (laser), D3 (button),
+   and the first two down the LEFT edge are 5V and GND; the silkscreen on the back confirms each
+   one. Keep the joints low: the lid posts land at Y +-3.5 beside the battery pads.
 4. **Laser.** Push the module into the saddle, drop its leads through the slot behind the saddle.
    Red to the 5V pad. Black to the 2N2222 collector; emitter to the GND pad; base through 1 k to the
    D2 pad. Heat-shrink the transistor and tuck it behind the XIAO. Optional trigger button: D3 to GND.
