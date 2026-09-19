@@ -340,7 +340,12 @@ How it is built (no ESP-IDF CMake, no component manager):
 Build / flash from **PowerShell or VS Code**, not Git Bash: pioarduino's tool installer refuses to
 run under MSYS (`ERROR: MSys/Mingw is not supported`) and the compiler is then not found.
 
-    pio run -e xiao_espdet -t upload --upload-port COM6
+    pio run -e xiao_espdet -t upload --upload-port COM13
+
+`xiao_espdet` is the enclosure build: bare XIAO in the head, pins pan D0, tilt D1, laser D2, button
+D3 as in the pin table, no OLED or buzzer code. For bench work with the XIAO on the Seeed Expansion
+Board use `xiao_espdet_expansion` (same detector; tilt D2, laser D6, button D1, buzzer D3, OLED on
+D4/D5). The board in the turret was flashed with `xiao_espdet` on 2026-09-18.
 
 Flash use is 3.0 MB of the 3.3 MB app slot. If it grows, switch `board_build.partitions` to
 `max_app_8MB.csv` (drops OTA).
