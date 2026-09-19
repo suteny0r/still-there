@@ -138,7 +138,7 @@ trim offsets the mechanical center. Both persist.
 | `base` | top plate on the bed | pan servo goes in from below, body up through the plate cut, flange clamped against the two bosses with M2 screws driven up into the pilots; 6 mm harness hole outside the disc, flat internal pad on the +X (back) wall with two M2 pilots 16 mm apart for the USB-C inlet board and a 10 x 4.2 receptacle slot open to the bottom rim (the lid closes it), vent slots |
 | `base_lid` | flat | 4x M2 into wall bosses, rubber-foot recesses, vent grid |
 | `yoke` | disc on the bed | double-arm horn channel underneath with two M2 slots and a 3.2 mm center hole; arm A carries the tilt servo (body outside, flange on the outer face) and a zip-tie slot near each edge for the harness; arm B has the M3 pivot with a countersink; arm B sits 2 mm further out than the head frame implies because the tilt horn seats 2 mm high on the spline (`sv_seat_extra_s`) |
-| `head` | front face on the bed | camera module socket behind a 7.4 mm window, two standoffs bearing on the flex socket at the camera board's far end, which sits over its board-to-board connector (the end nearest the USB-C hangs free and gets no stop; the XIAO's exposed USB-end corners are the reset/boot buttons), a pad to the USB-C shell, lid posts behind the XIAO; 3 mm deep coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; 6 mm laser saddle on top with a lead-drop slot behind it; vent slots |
+| `head` | front face on the bed | camera module socket behind a 7.4 mm window, two standoffs bearing on the flex socket at the camera board's far end, which sits over its board-to-board connector (the end nearest the USB-C hangs free and gets no stop; the XIAO's exposed USB-end corners are the reset/boot buttons), a pad to the USB-C shell, lid posts behind the XIAO; 3 mm deep coax groove in the pivot-side wall; single-arm horn channel on +Y, M3 pivot boss on -Y; USB-C slot in the floor doubles as the harness entry; laser saddle on top (7.3 mm bore for the Quarton module, `laser_d`) with a lead-drop slot behind it; vent slots |
 | `head_lid` | antenna plate on the bed | 3 mm friction lip, 2x M2 from the top wall, USB notch, outer face doubled to 4 mm over the whole lid and extended 15 mm above the head as a 2 mm fin for the 20 x 40 WiFi patch antenna (one flat face, prints on the bed), coax notch at the top corner on the pivot side continuing the head's wall groove out through the top edge |
 
 Render everything:
@@ -259,7 +259,7 @@ base inlet or the XIAO's USB-C, not both.
 6. Head onto the yoke: set the head between the arms with the pivot ring against arm B and drive the
    M3x8 through arm B into the ring. Then fit the tilt servo from OUTSIDE arm A, output end first,
    body through the cutout, spline into the horn hub, and drive its two flange screws into the arm.
-7. Optional laser: push the 6 mm module into the saddle, M2 set screw from the top.
+7. Optional laser: push the module into the saddle bore (7.3 mm for the Quarton), M2 set screw from the top.
 
 ### Dimensions that matter
 

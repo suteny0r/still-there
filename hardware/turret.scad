@@ -153,7 +153,12 @@ head_x1   = head_x0 + wall + head_ix;       // shell back face (lid inner face)
 pivot_ring_d = 10;
 pivot_ring_h = 1.5;                         // spacer between head and arm B
 laser_mount  = true;                        // saddle for a 6 mm laser diode module on top
-laser_d      = 6.3;
+laser_d      = 7.3;         // bore for the Quarton VLM-650-03 LPT (7.0 mm barrel, 21 long; BOM 9c) as bought.
+                            // 6.3 for the 6 mm HiLetgo modules (BOM 9).
+laser_wall   = 1.5;         // saddle wall around the bore
+laser_zc     = head_z/2 - 0.3 + laser_d/2;         // bore axis: bore bottom 0.3 into the head top wall
+saddle_top   = laser_zc + laser_d/2 + laser_wall;  // saddle height follows the bore
+saddle_w     = laser_d + 2*laser_wall + 1.0;       // 11.3 for 7.3
 
 // --------------------------------------------------------------------- yoke
 disc_d   = 56;
@@ -431,8 +436,9 @@ module head() {
         // laser saddle: block behind, 45 deg slope down to the head's front edge in front, so the face
         // that hangs over the bed when the head prints front-down is a printable overhang, not a ceiling
         if (laser_mount) hull() {
-          translate([-5.75, -5.5, head_z/2 - 0.25]) cube([11.25, 11, 6.5]);          // x -5.75 .. 5.5
-          translate([head_x0, -5.5, head_z/2 - 0.25]) cube([5.5 - head_x0, 11, 0.5]); // base slab from the front face
+          translate([5.5 - (saddle_top - (head_z/2 - 0.25)), -saddle_w/2, head_z/2 - 0.25])
+            cube([saddle_top - (head_z/2 - 0.25), saddle_w, saddle_top - (head_z/2 - 0.25)]);   // block, 45 deg ramp in front
+          translate([head_x0, -saddle_w/2, head_z/2 - 0.25]) cube([5.5 - head_x0, saddle_w, 0.5]);  // base slab from the front face
         }
       }
       // interior cavity, open at the back
@@ -455,8 +461,8 @@ module head() {
       for (y = [-7, 7]) translate([head_x1 - 1.5, y, head_z/2 - wall - 1]) cylinder(d = m2_pilot, h = wall + 8);
       // laser bore + set screw
       if (laser_mount) {
-        translate([-1.5, 0, head_z/2 + 3.2]) cyl_x(laser_d, 20);
-        translate([-1.5, 0, head_z/2 + 3]) cylinder(d = m2_pilot, h = 6);
+        translate([-1.5, 0, laser_zc]) cyl_x(laser_d, 26);                       // x -14.5 .. 11.5, through the ramp
+        translate([-1.5, 0, laser_zc]) cylinder(d = m2_pilot, h = laser_d/2 + laser_wall + 1);   // set screw from the top
         // lead drop: the laser leads fall through the top wall into the cavity behind the module
         translate([0, -2, head_z/2 - wall - 1]) cube([9, 4, wall + 4]);
       }
