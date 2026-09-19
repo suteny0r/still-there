@@ -3,7 +3,8 @@
 *Sentry goin' up.* A face-tracking pan/tilt turret on the Seeed Studio XIAO ESP32S3 Sense.
 
 Camera pan/tilt turret built around the Seeed Studio XIAO ESP32S3 Sense (OV2640, 8 MB PSRAM).
-Two MG90S metal-gear servos, on-device face detection (esp-dl) or motion detection, a proportional
+Two MG90S metal-gear servos, on-device person detection (ESPDet-Pico, Espressif's YOLOv11-derived
+tiny detector) or face detection (esp-dl) or motion detection, a proportional
 tracking loop with scan-when-lost, a laser/LED "fire" output, and a web UI with live MJPEG.
 Enclosure is parametric OpenSCAD (2021.01), five printed parts, no supports.
 
@@ -325,6 +326,12 @@ on the `espdet-pico` branch, now merged) swaps the acquisition detector for Espr
 (esp-dl 3.3.11, `espressif/pedestrian_detect` 0.3.2, 224x224 input). A body box does not need a
 frontal face, so masked, turned-away or side-on people are acquired, and the aim point is a fraction
 down the box (`aim down body`, default 0.25) instead of "below the face".
+
+ESPDet is Espressif's family of tiny object-detection models (the main variant is ESPDet-Pico)
+built for running on ESP32-class microcontrollers. It comes out of the esp-detection project, which
+provides a series of ultra-lightweight models along with APIs for training custom detection models
+tailored to specific use cases, optimized for efficient deployment on ESP AI chips, and is based on
+Ultralytics YOLOv11.
 
 Measured on the XIAO ESP32S3 Sense (2026-09-11): detector 190 to 210 ms per run including the
 resize, scores 0.5 to 0.86 on a seated person with a mask, torso tracker 6 to 15 ms between runs,
