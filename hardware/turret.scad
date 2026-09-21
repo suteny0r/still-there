@@ -204,8 +204,9 @@ pan_flange_below = true;                    // pan servo fitted from below, flan
                                             // ear and runs into the screw boss beneath the plate. Kept only
                                             // for the geometry history.
 sv_boss_len = 6;                            // flange screw bosses under the top plate
-harness_hole_d = 6;                         // riser harness hole through the top plate, outside the disc
-harness_r   = 32.5;                         // its radius: disc edge 28, inner wall 36.6
+harness_w   = 6;                            // riser harness slot, radial width (disc edge 28, inner wall 36.6)
+harness_l   = 12;                           // slot length along the arc: a servo plug is 8 x 3, passes end-on
+harness_r   = 32.5;                         // arc radius; the slot follows the rim so its width stays 6
 foot_d      = 10.5;
 
 // ------------------------------------------------------------ assembly Z's
@@ -331,7 +332,9 @@ module base() {
     if (!pan_flange_below)
       translate([18, 0, base_h - base_top_t - 1]) cylinder(d = cable_hole_d, h = base_top_t + 2);
     // riser harness hole outside the disc, on the arm A (+Y) side at pan center
-    translate([0, harness_r, base_h - base_top_t - 1]) cylinder(d = harness_hole_d, h = base_top_t + 2);
+    // arc slot: swept between two round ends, centered on +Y (arm A side)
+    hull() for (a = [-1, 1]) rotate([0, 0, 90 + a * (harness_l - harness_w) / 2 / harness_r * 180 / PI])
+      translate([harness_r, 0, base_h - base_top_t - 1]) cylinder(d = harness_w, h = base_top_t + 2);
     // lid screw pilots
     for (a = [45, 135, 225, 315]) rotate([0, 0, a])
       translate([base_d/2 - base_wall - base_boss_d/2 + 0.5, 0, -1])
