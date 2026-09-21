@@ -208,7 +208,7 @@ base inlet or the XIAO's USB-C, not both.
    wire and the riser 5 V wire, row 2 the inlet GND wire and the riser GND wire, row 3 the riser
    pan-signal wire; bridge each row. Foam-tape board A to the inside of the lid or tie it to a lid
    boss. Plug the pan servo onto its header: orange on the signal pin. Twist the
-   three riser wires, pass them up through the 6 mm hole in the top plate, and leave a 40 mm loop
+   three riser wires, pass them up through the arc slot in the top plate, and leave a 40 mm loop
    above the plate for the pan swing. Screw the lid on.
 2. **Yoke.** Zip-tie the riser against arm A's edge through the slot 10 mm above the disc. Board B
    rides under the same tie: row 1 takes the riser 5 V in and the head 5 V out, row 2 the same for
