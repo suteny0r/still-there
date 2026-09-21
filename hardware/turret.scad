@@ -188,12 +188,15 @@ inlet_ang   = 180;                          // wall angle: 180 = +X, the BACK of
                                             // ends 6.6 mm from center on +X but 17.6 on -X (shaft offset), so
                                             // +X and +-Y give ~30 mm behind the board, -X only ~16. Vents go
                                             // on the opposite wall.
-inlet_pcb   = [20.1, 6.75];                 // MEASURED board: 20 x 6.75, flat against the wall inside
+inlet_pcb   = [20.1, 6.75];                 // MEASURED board: 20 x 6.75, mounted OUTSIDE against a flat facet
 inlet_hole_sp = 16.0;                       // MEASURED: two mounting holes 16 mm apart, on the board's centerline
-inlet_port  = [10.0, 4.2];                  // clearance slot for the receptacle body through the wall (y, z)
-inlet_pad_x = 34.0;                         // flat internal face at this radius (wall inner r 36.6: the pad is
-                                            // 2.6 thick at the center, 1.3 at the board ends, plus the 2.4 wall)
+inlet_slot_w = 13.0;                        // wall slot for the 12 mm connector body, open to the bottom rim
+inlet_face_x = 37.5;                        // flat outer facet at this radius (1.5 into the r 39 wall at center;
+                                            // the inside pad below keeps 3.5 mm of wall behind the facet)
+inlet_pad_x = 34.0;                         // inside pad face radius
 inlet_z0    = base_lid_t + 1.0;             // board bottom edge above the lid
+// (An inside mount was tried 2026-09-16 and failed: the receptacle face sat 3.5 mm behind the wall
+//  and a plug could not reach it. The board face must be at the outer surface.)
 cable_hole_d= 12;                           // under-disc cable hole, only useful with the flange on top
 pan_flange_below = true;                    // pan servo fitted from below, flange clamped up against the
                                             // boss bottoms (as built). false = flange on the plate top DOES NOT
@@ -314,8 +317,8 @@ module base() {
       for (s = [-1, 1])
         translate([sv_cx + s*sv_hole_sp/2, 0, base_h - base_top_t - sv_boss_len])
           cylinder(d = 6, h = sv_boss_len + 0.01);
-      // inlet mounting pad: a flat face inside the curved wall, wide enough for the board plus 2 mm
-      // (authored on -X, turned to inlet_ang)
+      // inlet backing pad inside the wall behind the facet: wall stays 3.5 thick where the facet
+      // cut would leave 0.8, and the screw pilots have material (authored on -X, turned to inlet_ang)
       if (inlet) rotate([0, 0, inlet_ang]) intersection() {
         cylinder(d = base_d - 0.02, h = base_h);
         translate([-base_d/2, -(inlet_pcb[0]/2 + 2), base_lid_t])
@@ -337,12 +340,18 @@ module base() {
     // below), its receptacle passes through a slot that is open to the bottom rim so nothing has to
     // bridge when the base prints top-down; the lid's edge closes the slot from below.
     if (inlet) rotate([0, 0, inlet_ang]) {
-      translate([-base_d/2 - 1, -inlet_port[0]/2, -1])
-        cube([base_d/2 - inlet_pad_x + 2, inlet_port[0], 1 + inlet_z0 + inlet_pcb[1]/2 + inlet_port[1]/2]);
-      // M2 pilots for the board's two mounting holes, 3.5 deep into the pad (M2x4 self-tapping)
+      // flat facet on the outside: everything outside the plane x = -inlet_face_x is removed over
+      // the board's footprint plus 1.5 mm, from the rim to 1.5 above the board's top edge
+      translate([-base_d/2 - 1, -(inlet_pcb[0]/2 + 1.5), -1])
+        cube([base_d/2 + 1 - inlet_face_x, inlet_pcb[0] + 3, 1 + inlet_z0 + inlet_pcb[1] + 1.5]);
+      // connector slot through the wall, open to the bottom rim (no bridge to print; the board
+      // covers it from outside, the lid edge from below)
+      translate([-base_d/2 - 1, -inlet_slot_w/2, -1])
+        cube([base_d/2 - inlet_pad_x + 2, inlet_slot_w, 1 + inlet_z0 + inlet_pcb[1]/2 + 2.1]);
+      // M2 pilots from the facet inward, 3.2 deep (M2x4 self-tapping through the 1 mm board)
       for (sy = [-1, 1])
-        translate([-inlet_pad_x + 0.01, sy * inlet_hole_sp/2, inlet_z0 + inlet_pcb[1]/2])
-          rotate([0, -90, 0]) cylinder(d = m2_pilot, h = 3.5);
+        translate([-inlet_face_x - 0.01, sy * inlet_hole_sp/2, inlet_z0 + inlet_pcb[1]/2])
+          rotate([0, 90, 0]) cylinder(d = m2_pilot, h = 3.2);
     }
     // vent slots on the wall opposite the inlet
     rotate([0, 0, inlet_ang]) for (i = [-1, 0, 1]) translate([base_d/2, i*6, 14]) cube([base_wall*3, 2.2, 14], center = true);
