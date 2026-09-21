@@ -230,6 +230,10 @@ base inlet or the XIAO's USB-C, not both.
    no wire crosses the tilt axis without slack. Flashing later: unplug the base inlet, use a
    right-angle USB-C cable in the floor slot beside the harness.
 
+Build status (2026-09-21): prototype assembled and wired as above, person tracking follows a
+moving target, laser fires from D2 through the 2N2222 driver. Tilt servo fitted with 2 mm of washers
+pending the yoke reprint that moves arm B by the same amount.
+
 ### Assembly
 
 1. Center both servos electrically first (flash the firmware, power up, wait for both to hit 90).
