@@ -29,7 +29,8 @@ struct Settings {
   int redetectMs = 300;      // person mode: re-run the face detector this often while tracking
                              // (12-40 ms per run, so a few frames apart is affordable)
   float torsoMinConf = 0.12f;// color tracker confidence below which the torso is "not seen"
-  int faceTimeoutMs = 8000;  // drop a torso track that has not been re-confirmed by a face this long
+  int faceTimeoutMs = 1500;  // drop a torso track the detector has not re-confirmed this long (was 8000:
+                             // long enough for a color track on nothing to drive a servo to its end stop)
   bool autoFire = false;     // laser follows lock state
   int motionThr = 22;        // per-cell luma delta
   int motionMinCells = 3;

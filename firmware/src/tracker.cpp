@@ -186,6 +186,7 @@ void Tracker::loadSettings() {
   settings.redetectMs = prefs.getInt("redetect", d.redetectMs);
   settings.torsoMinConf = prefs.getFloat("torsoconf", d.torsoMinConf);
   settings.faceTimeoutMs = prefs.getInt("facetmo", d.faceTimeoutMs);
+  if (settings.faceTimeoutMs == 8000) settings.faceTimeoutMs = d.faceTimeoutMs;   // migrate the pre-2026-09-22 default
   settings.autoFire = prefs.getBool("autofire", d.autoFire);
   settings.motionThr = prefs.getInt("mthr", d.motionThr);
   settings.motionMinCells = prefs.getInt("mmin", d.motionMinCells);

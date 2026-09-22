@@ -200,8 +200,15 @@ static void drawOverlay(camera_fb_t* fb, const Target& t) {
 
 // Person mode: the face detector acquires (and periodically re-anchors) the target, the
 // color tracker follows the torso in between, so the person can turn or walk sideways.
+// A new track needs two detections within this long of each other. A lamp glare that the person
+// model scores once at 0.5 does not repeat on the next frame; a person does.
+static const uint32_t CONFIRM_WINDOW_MS = 900;
+
 static Target personPipeline(camera_fb_t* fb, uint32_t now) {
   static uint32_t lastFaceRun = 0;
+  static uint32_t pendingMs = 0;         // time of an unconfirmed first detection (0 = none)
+  static float winX = -1, winY = -1;     // last torso window center, for the stuck-window check
+  static uint32_t winMoveMs = 0;
   const Settings& s = tracker.settings;
   torso.minConfidence = s.torsoMinConf;
 
@@ -227,9 +234,27 @@ static Target personPipeline(camera_fb_t* fb, uint32_t now) {
     lastFaceRun = now;
   }
 
+  if (face.found && !torso.active()) {
+    // Item 2 gates, only for starting a NEW track (a live track is refreshed by every detection):
+    // (a) a box wholly in the top quarter of the frame while tilt is already at its tracking ceiling
+    //     is a ceiling fixture, not a person;
+    // (b) the first detection only arms; the second within CONFIRM_WINDOW_MS confirms.
+    bool topOnly = (face.y + face.h / 2) < CAM_H / 4 && tracker.tiltSet() >= s.trackTiltMax - 1.0f;
+    if (topOnly) {
+      face = Target();
+      pendingMs = 0;
+    } else if (!pendingMs || (now - pendingMs) > CONFIRM_WINDOW_MS) {
+      pendingMs = now;                   // armed; report nothing yet
+      face = Target();
+    } else {
+      pendingMs = 0;                     // confirmed
+    }
+  }
+
   if (face.found) {
     lastFace = face;
     tracker.lastFaceMs = now;
+    winX = winY = -1;
     int tw, th, tcx, tcy;
     float aimY;
     if (face.kind == TARGET_PERSON) {
@@ -268,6 +293,18 @@ static Target personPipeline(camera_fb_t* fb, uint32_t now) {
     return t;
   }
   if (torso.active() && torso.track(fb, t)) {
+    // Item 3b: a window that has not moved for a second while the servos are still slewing is
+    // tracking nothing (a uniform wall or ceiling moves with the camera). Drop it.
+    if (winX < 0 || fabsf(t.x - winX) + fabsf(t.y - winY) > 3.0f) {
+      winX = t.x; winY = t.y; winMoveMs = now;
+    } else if (tracker.moving() && (now - winMoveMs) > 1000) {
+      torso.reset();
+      lastFace = Target();
+      tracker.lastFaceMs = 0;
+      tracker.torsoAimY = -1;
+      winX = winY = -1;
+      return Target();
+    }
     tracker.torsoAimY = torso.aimY();
     return t;
   }

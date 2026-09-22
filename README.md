@@ -403,7 +403,12 @@ were last saved (default Person).
   font (FreeMonoBold 12pt) draws 24 rows downward. Every overlay primitive, text included, now goes
   through clipped helpers, and the PSRAM work frame has 8 KB guard bands on both sides.
 - After the person leaves, the torso color tracker can keep matching background at its minimum
-  window size; a track with no face confirmation for `faceTimeoutMs` (default 8 s) is now dropped.
+  window size; a track with no detector confirmation for `faceTimeoutMs` is dropped (default 1.5 s
+  since 2026-09-22, was 8 s: long enough for a color track on a blank wall to drive a servo to its stop).
+- Acquisition gate (2026-09-22): a new track needs two detections within 0.9 s; a single hit on a
+  lamp does not repeat, a person does. A box wholly in the top quarter of the frame while tilt is at
+  its tracking ceiling is ignored. A torso window that stays put for a second while the servos are
+  still slewing is tracking nothing and is dropped.
 - LEDC: ESP32-S3 allows at most 14-bit PWM resolution; the servo driver asked for 16 and silently
   failed. Now 14-bit (1.2 us per step at 50 Hz).
 - The esp-dl face model does not detect masked faces. Acquisition needs an unmasked, roughly
