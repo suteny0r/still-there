@@ -125,6 +125,11 @@ full travel. Check that neither servo buzzes at 0 or 180 before widening.
 
 ### Direction and trims
 
+Scan when lost sweeps pan at "Scan tilt" in every tracking mode (fixed 2026-09-22: it used to hold
+whatever tilt the last chase ended on, so it swept the floor or the ceiling). "Tracking tilt max"
+(default 110) caps how far a tracking correction may tilt up, so a chase cannot end on the ceiling
+lights; manual control keeps the full 35 to 145 range.
+
 Servo orientation decides sign. If the head moves the wrong way, in manual control or by running
 away from a target, toggle "Invert pan" or "Invert tilt" and press Save. The flag mirrors the servo
 output about 90 degrees, so manual, scan, click-to-aim and tracking all reverse together. Pan/tilt

@@ -70,6 +70,7 @@ void Tracker::onDetection(const Target& t, uint32_t nowMs) {
     if (fabsf(eyPx) > dead) {
       // Target above center (ey < 0): tilt up. Default: larger angle = up.
       _tiltSet = clampTilt(_tiltSet + settings.kp * (-ey));
+      if (_tiltSet > settings.trackTiltMax) _tiltSet = settings.trackTiltMax;   // tracking ceiling
     }
 
     bool inside = fabsf(exPx) <= dead && fabsf(eyPx) <= dead;
@@ -108,7 +109,8 @@ void Tracker::tick(uint32_t nowMs) {
     _panSet += _scanDir * settings.scanSpeed * dt;
     if (_panSet >= PAN_MAX_DEG) { _panSet = PAN_MAX_DEG; _scanDir = -1; }
     if (_panSet <= PAN_MIN_DEG) { _panSet = PAN_MIN_DEG; _scanDir = 1; }
-    if (_mode == MODE_SCAN) _tiltSet = clampTilt(settings.scanTilt);
+    _tiltSet = clampTilt(settings.scanTilt);   // every scanning mode, not only Scan: a sweep at the
+                                               // tilt the last chase ended on looks at floor or ceiling
   }
 
   auto step = [&](float cur, float set) {
@@ -174,6 +176,7 @@ void Tracker::loadSettings() {
   settings.scanWhenLost = prefs.getBool("scan", d.scanWhenLost);
   settings.scanSpeed = prefs.getFloat("scanspd", d.scanSpeed);
   settings.scanTilt = prefs.getFloat("scantilt", d.scanTilt);
+  settings.trackTiltMax = prefs.getFloat("ttmax", d.trackTiltMax);
   settings.lockMs = prefs.getInt("lockms", d.lockMs);
   settings.lockRelease = prefs.getFloat("lockrel", d.lockRelease);
   settings.aimBelow = prefs.getFloat("aimbelow", d.aimBelow);
@@ -210,6 +213,7 @@ void Tracker::saveSettings(bool storeCurrentMode) {
   prefs.putBool("scan", settings.scanWhenLost);
   prefs.putFloat("scanspd", settings.scanSpeed);
   prefs.putFloat("scantilt", settings.scanTilt);
+  prefs.putFloat("ttmax", settings.trackTiltMax);
   prefs.putInt("lockms", settings.lockMs);
   prefs.putFloat("lockrel", settings.lockRelease);
   prefs.putFloat("aimbelow", settings.aimBelow);

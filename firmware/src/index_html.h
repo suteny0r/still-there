@@ -71,6 +71,7 @@ h3{margin:12px 0 4px;font-size:13px;color:#888;text-transform:uppercase;letter-s
   <div class="row"><button data-t="scan" data-key="scan">Scan when lost</button></div>
   <label>Scan speed &deg;/s <input type="range" data-var="scanspeed" min="2" max="120" step="1" data-key="scanSpeed"><span class="v"></span></label>
   <label>Scan tilt <input type="range" data-var="scantilt" min="35" max="145" step="1" data-key="scanTilt"><span class="v"></span></label>
+  <label>Tracking tilt max <input type="range" data-var="ttmax" min="35" max="145" step="1" data-key="trackTiltMax"><span class="v"></span></label>
   <h3>Motion detector</h3>
   <label>Threshold <input type="range" data-var="mthr" min="2" max="100" step="1" data-key="mthr"><span class="v"></span></label>
   <label>Min cells <input type="range" data-var="mmin" min="1" max="60" step="1" data-key="mmin"><span class="v"></span></label>

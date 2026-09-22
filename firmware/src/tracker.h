@@ -17,7 +17,8 @@ struct Settings {
   int lostMs = 2500;         // target lost after this long without a detection
   bool scanWhenLost = true;  // sweep pan when target lost (tracking modes)
   float scanSpeed = 25.0f;   // deg/s
-  float scanTilt = 90.0f;
+  float scanTilt = 90.0f;    // tilt held while scanning, in every mode that scans
+  float trackTiltMax = 110.0f; // tracking corrections never tilt above this (lamps live higher); manual is unlimited
   int lockMs = 600;          // on target this long -> locked
   float lockRelease = 3.0f;  // lock is kept until the error exceeds deadband * lockRelease
   float aimBelow = 2.3f;     // person mode: aim this many face-widths below the face center
